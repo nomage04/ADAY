@@ -4,6 +4,22 @@
 
 > **Résumé en français.** L'application tourne uniquement sur votre machine, génère des présentations PowerPoint modifiables et conserve vos données dans un dossier local ignoré par Git. Commencez par la section [Installation](#installation), puis configurez votre fournisseur LLM dans **Settings**.
 
+## Built during OpenAI Build Week
+
+ADAY was built during [OpenAI Build Week](https://openai.devpost.com/) for the **Work and Productivity** track. The product idea existed before the event, but the submitted application, architecture and core functionality were implemented during Build Week with Codex and GPT-5.6.
+
+### How Codex contributed
+
+Codex was the primary engineering environment used across the entire project lifecycle:
+
+- **Product and architecture planning:** Sol 5.6 at **MAX effort** helped turn the initial idea into a complete implementation plan. It mapped the end-to-end experience, application boundaries, planner contracts, deterministic rendering pipeline, local persistence model, security constraints and validation strategy before the build started.
+- **Full-stack implementation:** Sol 5.6 and Terra 5.6, as available in my Codex environment, helped implement the browser Studio and Gallery, the planning and vision agents, the FastAPI backend, editable PPTX renderers, previews, imports, backups and local storage workflows.
+- **Repository-scale iteration:** Codex explored and modified the codebase directly, traced behavior across the planner, preview and PowerPoint output, and helped remove incomplete features while preserving compatibility with existing backup and layout formats.
+- **Debugging and verification:** Codex helped reproduce failures, reason about edge cases and build the automated test suite covering browser behavior, server security, all built-in renderers, preview generation and SmartArt-style PowerPoint imports. Sol 5.6 and Terra 5.6 were used throughout implementation and testing, not only for isolated code suggestions.
+- **Open-source preparation:** Codex helped reorganize the repository, document installation and architecture, add contribution and security material, audit the Git history for credentials and create reproducible Windows and Linux CI checks.
+
+I retained the key product, engineering and design decisions: keeping ADAY local-first, generating genuinely editable PowerPoint files instead of flattened slide images, validating the plan before rendering, preserving useful decorations from imported layouts and deciding which features were complete enough to ship. Codex accelerated the translation of those decisions into a coherent, tested product.
+
 ## Features
 
 - Studio workflow: brief, plan validation, preview and PPTX export.
