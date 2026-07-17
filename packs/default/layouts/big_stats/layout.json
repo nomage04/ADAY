@@ -1,0 +1,54 @@
+{
+  "id": "big_stats",
+  "name": "Big Stats",
+  "category": "content",
+  "description": "Hero KPI blocks for one to three important metrics with optional icons.",
+  "renderer": {
+    "type": "registered",
+    "name": "big_stats"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "stats"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "stats": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 4,
+        "items": {
+          "type": "object",
+          "required": [
+            "value",
+            "label"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "string",
+                "number"
+              ]
+            },
+            "icon": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            },
+            "caption": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

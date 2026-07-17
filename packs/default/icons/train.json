@@ -1,0 +1,9 @@
+{
+  "id": "train",
+  "name": "Train",
+  "description": "train icon for transport topics",
+  "tags": [
+    "transport",
+    "train"
+  ]
+}

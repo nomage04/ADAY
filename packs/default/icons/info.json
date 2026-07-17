@@ -1,0 +1,9 @@
+{
+  "id": "info",
+  "name": "Info",
+  "description": "info icon for tech process topics",
+  "tags": [
+    "tech_process",
+    "info"
+  ]
+}

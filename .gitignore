@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Local config (contains the API key)
+config/config.local.js
+
+# Build artifacts
+dist/
+build/
+__pycache__/
+.local-backups/
+.tmp-capture/
+
+# Root-level manual test artifacts
+/Presentation*.pptx
+/test_*.pptx
+/test_*.png
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Env
+.env
+.env.*
+.env.local
+.env.*.local

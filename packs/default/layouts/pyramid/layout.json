@@ -1,0 +1,41 @@
+{
+  "id": "pyramid",
+  "name": "Pyramid",
+  "category": "smartart",
+  "description": "Layered hierarchy or maturity model represented as stacked bands.",
+  "renderer": {
+    "type": "registered",
+    "name": "pyramid"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "levels"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "levels": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 6,
+        "items": {
+          "type": "object",
+          "required": [
+            "label"
+          ],
+          "properties": {
+            "label": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

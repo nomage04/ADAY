@@ -1,0 +1,9 @@
+{
+  "id": "pin",
+  "name": "Pin",
+  "description": "pin icon for communication topics",
+  "tags": [
+    "communication",
+    "pin"
+  ]
+}

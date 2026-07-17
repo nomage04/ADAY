@@ -1,0 +1,9 @@
+{
+  "id": "warn",
+  "name": "Warn",
+  "description": "warn icon for tech process topics",
+  "tags": [
+    "tech_process",
+    "warn"
+  ]
+}

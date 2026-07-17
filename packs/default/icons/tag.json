@@ -1,0 +1,9 @@
+{
+  "id": "tag",
+  "name": "Tag",
+  "description": "tag icon for communication topics",
+  "tags": [
+    "communication",
+    "tag"
+  ]
+}

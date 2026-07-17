@@ -1,0 +1,56 @@
+{
+  "id": "two_col",
+  "name": "Two Col",
+  "category": "content",
+  "description": "Two balanced text columns for contrast, pros/cons, or paired arguments.",
+  "renderer": {
+    "type": "registered",
+    "name": "two_col"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "left_title",
+      "left_bullets",
+      "right_title",
+      "right_bullets"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "left_title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "left_bullets": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 6,
+        "items": {
+          "type": "string"
+        }
+      },
+      "right_title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "right_bullets": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 6,
+        "items": {
+          "type": "string"
+        }
+      },
+      "left_icon": {
+        "type": "string"
+      },
+      "right_icon": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "battery",
+  "name": "Battery",
+  "description": "battery icon for environment topics",
+  "tags": [
+    "environment",
+    "battery"
+  ]
+}

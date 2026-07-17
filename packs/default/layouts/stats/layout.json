@@ -1,0 +1,48 @@
+{
+  "id": "stats",
+  "name": "Stats",
+  "category": "content",
+  "description": "Compact KPI row with two to four metrics.",
+  "renderer": {
+    "type": "registered",
+    "name": "stats"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "stats"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "stats": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 5,
+        "items": {
+          "type": "object",
+          "required": [
+            "value",
+            "label"
+          ],
+          "properties": {
+            "value": {
+              "type": [
+                "string",
+                "number"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

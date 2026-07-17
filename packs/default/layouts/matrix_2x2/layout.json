@@ -1,0 +1,78 @@
+{
+  "id": "matrix_2x2",
+  "name": "Matrix 2X2",
+  "category": "smartart",
+  "description": "2x2 matrix for prioritization, positioning, or quadrant analysis.",
+  "renderer": {
+    "type": "registered",
+    "name": "matrix_2x2"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "axes",
+      "items"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "axes": {
+        "type": "object",
+        "required": [
+          "x",
+          "y"
+        ],
+        "properties": {
+          "x": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "string"
+            }
+          },
+          "y": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "items": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 8,
+        "items": {
+          "type": "object",
+          "required": [
+            "quadrant",
+            "label"
+          ],
+          "properties": {
+            "quadrant": {
+              "type": "string",
+              "enum": [
+                "tl",
+                "tr",
+                "bl",
+                "br"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

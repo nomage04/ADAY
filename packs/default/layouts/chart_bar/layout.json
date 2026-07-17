@@ -1,0 +1,47 @@
+{
+  "id": "chart_bar",
+  "name": "Chart Bar",
+  "category": "content",
+  "description": "Bar chart with categories, numeric values, and short commentary.",
+  "renderer": {
+    "type": "registered",
+    "name": "chart_bar"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "categories",
+      "values"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "categories": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 12,
+        "items": {
+          "type": "string"
+        }
+      },
+      "values": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 12,
+        "items": {
+          "type": "number"
+        }
+      },
+      "commentary": {
+        "type": "array",
+        "maxItems": 6,
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

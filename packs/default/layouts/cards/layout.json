@@ -1,0 +1,49 @@
+{
+  "id": "cards",
+  "name": "Cards",
+  "category": "content",
+  "description": "Two to four compact cards for parallel ideas, features, or recommendations.",
+  "renderer": {
+    "type": "registered",
+    "name": "cards"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "cards"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "cards": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 4,
+        "items": {
+          "type": "object",
+          "required": [
+            "title",
+            "body"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1
+            },
+            "icon": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

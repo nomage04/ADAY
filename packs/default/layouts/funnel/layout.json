@@ -1,0 +1,47 @@
+{
+  "id": "funnel",
+  "name": "Funnel",
+  "category": "smartart",
+  "description": "Funnel for narrowing stages, conversion, or prioritization.",
+  "renderer": {
+    "type": "registered",
+    "name": "funnel"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "stages"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "stages": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 6,
+        "items": {
+          "type": "object",
+          "required": [
+            "label"
+          ],
+          "properties": {
+            "label": {
+              "type": "string",
+              "minLength": 1
+            },
+            "metric": {
+              "type": [
+                "string",
+                "number"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

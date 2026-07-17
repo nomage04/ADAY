@@ -1,0 +1,30 @@
+{
+  "id": "photo_hero",
+  "name": "Photo Hero",
+  "category": "image",
+  "description": "Full-bleed user photo with dark title overlay and optional caption.",
+  "renderer": {
+    "type": "registered",
+    "name": "photo_hero"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "image"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "image": {
+        "type": "string",
+        "pattern": "^photo:[A-Za-z0-9_-]+$"
+      },
+      "caption": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  }
+}

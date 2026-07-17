@@ -1,0 +1,46 @@
+{
+  "id": "timeline",
+  "name": "Timeline",
+  "category": "content",
+  "description": "Horizontal timeline for three to five chronological steps.",
+  "renderer": {
+    "type": "registered",
+    "name": "timeline"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "steps"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "steps": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 6,
+        "items": {
+          "type": "object",
+          "required": [
+            "title",
+            "body"
+          ],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

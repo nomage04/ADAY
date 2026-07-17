@@ -1,0 +1,49 @@
+{
+  "id": "logo_grid",
+  "name": "Logo Grid",
+  "category": "content",
+  "description": "Grid of tools, platforms, partners, or logos with captions.",
+  "renderer": {
+    "type": "registered",
+    "name": "logo_grid"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "tools"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "tools": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 8,
+        "items": {
+          "type": "object",
+          "required": [
+            "name",
+            "logo"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "logo": {
+              "type": "string",
+              "minLength": 1
+            },
+            "caption": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "id": "compare_two",
+  "name": "Compare Two",
+  "category": "content",
+  "description": "Side-by-side comparison between two options or positions.",
+  "renderer": {
+    "type": "registered",
+    "name": "compare_two"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "left",
+      "right"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "left": {
+        "type": "object",
+        "required": [
+          "heading",
+          "bullets"
+        ],
+        "properties": {
+          "heading": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bullets": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 6,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "right": {
+        "type": "object",
+        "required": [
+          "heading",
+          "bullets"
+        ],
+        "properties": {
+          "heading": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bullets": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 6,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+  }
+}

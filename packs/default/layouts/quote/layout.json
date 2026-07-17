@@ -1,0 +1,30 @@
+{
+  "id": "quote",
+  "name": "Quote",
+  "category": "content",
+  "description": "Editorial quote slide with attribution.",
+  "renderer": {
+    "type": "registered",
+    "name": "quote"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "quote"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "quote": {
+        "type": "string",
+        "minLength": 1
+      },
+      "attribution": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  }
+}

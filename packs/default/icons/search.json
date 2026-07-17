@@ -1,0 +1,9 @@
+{
+  "id": "search",
+  "name": "Search",
+  "description": "search icon for tech process topics",
+  "tags": [
+    "tech_process",
+    "search"
+  ]
+}

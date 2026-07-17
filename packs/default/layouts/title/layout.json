@@ -1,0 +1,12 @@
+{
+  "id": "title",
+  "name": "Title",
+  "category": "structural",
+  "description": "Opening title slide with strong brand panel and subtitle.",
+  "renderer": {
+    "type": "registered",
+    "name": "title"
+  },
+  "schema": {"required":["title"],"properties":{"title":{"type":"string","minLength":1},"subtitle":{"type":"string"},"role":{"type":"string"},"attribution":{"type":"string"}},"additionalProperties":false},
+  "structural_role": "title"
+}

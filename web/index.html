@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; connect-src http: https:; object-src 'none'; base-uri 'none'">
+<title>ADAY — Assisted Deck Authoring for You</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="appAnnouncements" class="sr-only" role="status" aria-live="polite"></div>
+
+<header class="app-header">
+  <div class="brand">
+    <h1>ADAY</h1>
+    <p class="sub">frame · plan · validate · export</p>
+  </div>
+</header>
+
+<header class="topbar">
+  <div class="topbar-title">
+    <span class="crumb">ADAY / <span id="activeViewCrumb">Studio</span></span>
+    <h1 id="activeViewTitle">Studio</h1>
+  </div>
+</header>
+
+<div id="repoModeBanner" class="repo-mode-banner hidden" role="status">
+  Read-only mode: run <code>python -m backend.server</code> from the project to import and save JSON data.
+  <button id="btnReconnectRepo" class="secondary" type="button">Reconnect</button>
+</div>
+
+<nav class="nav-tabs" role="tablist">
+  <button id="navTabStudio" class="nav-tab active" data-nav-tab="studio" role="tab" aria-selected="true" aria-controls="navStudio"><span class="nav-tab-icon" aria-hidden="true"></span><span>Studio</span></button>
+  <button id="navTabGallery" class="nav-tab" data-nav-tab="gallery" role="tab" aria-selected="false" aria-controls="navGallery"><span class="nav-tab-icon" aria-hidden="true"></span><span>Gallery</span></button>
+  <button id="navTabHistory" class="nav-tab" data-nav-tab="history" role="tab" aria-selected="false" aria-controls="navHistory"><span class="nav-tab-icon" aria-hidden="true"></span><span>History</span></button>
+  <button id="navTabSettings" class="nav-tab" data-nav-tab="settings" role="tab" aria-selected="false" aria-controls="navSettings"><span class="nav-tab-icon" aria-hidden="true"></span><span>Settings</span></button>
+</nav>
+
+<section class="sidebar-todos" aria-label="Application status">
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-foot">
+    <div class="conn-pill">
+      <span class="conn-dot" aria-hidden="true"></span>
+      <span>Local app</span>
+    </div>
+    <p class="foot-hint">Live preview unlocks as soon as a plan is ready.</p>
+  </div>
+</section>
+
+<main class="nav-panels">
+
+<!-- ================== STUDIO ================== -->
+<div id="navStudio" class="nav-panel active" role="tabpanel" aria-labelledby="navTabStudio">
+
+  <nav class="studio-flow-nav" role="tablist" aria-label="Studio progress">
+    <button id="studioStepCreate" class="studio-flow-step active" type="button" role="tab" aria-selected="true" aria-controls="studioInput" data-studio-step="create">
+      <span class="studio-flow-index">1</span>
+      <span>Create outline</span>
+    </button>
+    <button id="studioArrowCreateCockpit" class="studio-flow-arrow" type="button" aria-label="Go to brief cockpit" data-studio-next="cockpit" disabled></button>
+    <button id="studioStepCockpit" class="studio-flow-step" type="button" role="tab" aria-selected="false" aria-controls="briefChatSection" data-studio-step="cockpit" disabled>
+      <span class="studio-flow-index">2</span>
+      <span>Brief cockpit</span>
+    </button>
+    <button id="studioArrowCockpitPlan" class="studio-flow-arrow" type="button" aria-label="Go to proposed plan" data-studio-next="plan" disabled></button>
+    <button id="studioStepPlan" class="studio-flow-step" type="button" role="tab" aria-selected="false" aria-controls="planSection" data-studio-step="plan" disabled>
+      <span class="studio-flow-index">3</span>
+      <span>Proposed plan</span>
+    </button>
+  </nav>
+
+  <section id="studioInput" class="card" data-studio-step-panel="create" role="tabpanel" aria-labelledby="studioStepCreate">
+    <div class="card-head">
+      <h2>Create outline</h2>
+      <div class="studio-mode-tabs" role="tablist" aria-label="Plan creation mode">
+        <button class="studio-mode-tab active" type="button" role="tab" aria-selected="true" aria-controls="brief" data-studio-mode="brief">Brief</button>
+        <button class="studio-mode-tab" type="button" role="tab" aria-selected="false" aria-controls="externalPlan" data-studio-mode="external">Load external plan</button>
+      </div>
+    </div>
+
+    <div id="brief" class="studio-mode-panel active" role="tabpanel" data-studio-mode-panel="brief">
+      <div id="photos" class="brief-photos">
+        <div class="brief-photos-head">
+          <h3>Photos <span class="hint">— will be <strong>required</strong> in the deck (<span id="photoCounter">0/10</span>)</span></h3>
+          <button id="btnAddPhotos" class="primary" data-requires-server>+ Add photos</button>
+          <input id="photoInput" type="file" accept="image/*" multiple hidden>
+        </div>
+        <div id="photoGrid" class="photo-grid"></div>
+      </div>
+
+      <label class="full">
+        <span>Deck topic</span>
+        <textarea id="topic" rows="3" placeholder="Example: Customer retention strategy for a B2B SaaS startup"></textarea>
+      </label>
+      <div class="grid">
+        <label>
+          <span>Number of slides</span>
+          <input id="slideCount" type="number" min="4" max="20" value="8">
+        </label>
+        <label>
+          <span>Tone</span>
+          <select id="tone">
+            <option value="professional" selected>Professional</option>
+            <option value="direct">Direct</option>
+            <option value="persuasive">Persuasive</option>
+            <option value="storytelling">Storytelling</option>
+            <option value="educational">Educational</option>
+          </select>
+        </label>
+        <label class="inline generation-option">
+          <input id="includeSpeakerNotes" type="checkbox">
+          <span>Include speaker notes</span>
+        </label>
+        <label class="inline generation-option">
+          <input id="uniqueLayoutsPerDeck" type="checkbox">
+          <span>Use each layout only once</span>
+        </label>
+        <label class="full">
+          <span>Provided content (optional)</span>
+          <textarea id="userContent" rows="4" placeholder="Paste notes, bullets, or a rough draft. If empty, the agents will draft the content."></textarea>
+        </label>
+      </div>
+      <div class="actions">
+        <button id="btnPlan" class="primary">Discuss brief</button>
+        <button id="btnResume" class="secondary hidden">Resume last plan</button>
+      </div>
+    </div>
+
+    <div id="externalPlan" class="studio-mode-panel" role="tabpanel" data-studio-mode-panel="external" hidden>
+      <p class="muted">Paste an exported plan JSON (<code>plan-*.json</code> file or copied from Studio). This bypasses the LLM and goes straight to validation.</p>
+      <label class="full">
+        <span>Plan JSON</span>
+        <textarea id="pastePlan" rows="8" placeholder='[{"layout":"title","title":"...","subtitle":"..."}, ...]'></textarea>
+      </label>
+      <div class="actions">
+        <button id="btnUsePasted" class="primary">Load this plan</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="briefChatSection" class="card brief-cockpit hidden" data-studio-step-panel="cockpit" role="tabpanel" aria-labelledby="studioStepCockpit">
+    <div class="card-head">
+      <div>
+        <h2>Brief cockpit</h2>
+        <p class="muted">Conversation, context, and agent work in one place.</p>
+      </div>
+      <div class="brief-cockpit-head-actions">
+        <button id="btnBriefChatReset" class="secondary">Restart from brief</button>
+      </div>
+    </div>
+
+    <div class="brief-cockpit-grid">
+      <div class="brief-conversation-panel">
+        <div class="brief-panel-title brief-conversation-title">
+          <span>Conversation</span>
+          <div id="briefContextBadge" class="brief-context-badge risky" aria-live="polite">
+            <span class="brief-context-dot"></span>
+            <span id="briefContextText">Context to scope</span>
+          </div>
+        </div>
+        <div id="briefChatMessages" class="brief-chat-messages"></div>
+        <label class="full brief-chat-compose">
+          <span>Message</span>
+          <textarea id="briefChatInput" rows="2" placeholder="Answer the question, or add context. Enter sends, Shift+Enter adds a line."></textarea>
+        </label>
+        <div class="actions brief-chat-actions">
+          <button id="btnBriefChatSend" class="secondary">Send</button>
+          <button id="btnBriefExplain" class="secondary hidden">Explain</button>
+          <button id="btnBriefRegenerate" class="secondary hidden">Regenerate</button>
+          <button id="btnBriefChatValidate" class="primary">Validate and generate</button>
+        </div>
+      </div>
+      <aside id="briefContextPanel" class="brief-context-panel brief-context-sidebar" aria-live="polite" aria-label="Brief diagnostic">
+        <div>
+          <span class="brief-context-label">Diagnostic</span>
+          <p id="briefContextReason">Start scoping to check whether the LLM has enough context.</p>
+        </div>
+        <div id="briefCurrentCard" class="brief-current-card hidden">
+          <span class="brief-context-label">Current brief</span>
+          <div id="briefSummary" class="brief-summary"></div>
+          <div class="brief-context-columns">
+            <div>
+              <span class="brief-context-label">Open questions</span>
+              <ul id="briefOpenQuestions" class="brief-context-list"></ul>
+            </div>
+            <div>
+              <span class="brief-context-label">Recommended assumptions</span>
+              <ul id="briefAssumptions" class="brief-context-list"></ul>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="planSection" class="card hidden" data-studio-step-panel="plan" role="tabpanel" aria-labelledby="studioStepPlan">
+    <h2>Proposed plan</h2>
+    <div id="planOutput" class="plan-output"></div>
+    <div id="warnings" class="warnings hidden"></div>
+    <div class="actions">
+      <button id="btnBuild" class="primary">Validate and generate .pptx</button>
+      <button id="btnCopyPlan" class="secondary">Copy plan (JSON)</button>
+    </div>
+  </section>
+
+  <section id="status" class="status-bar hidden">
+    <div class="spinner"></div>
+    <span id="statusText">...</span>
+  </section>
+
+  <section id="result" class="card deck-result hidden" role="status" aria-live="polite">
+    <span class="deck-result-icon" aria-hidden="true">OK</span>
+    <div class="deck-result-copy">
+      <span class="deck-result-kicker">Deck generated</span>
+      <h2>Download started</h2>
+      <p id="resultText"></p>
+    </div>
+    <button id="btnReviewGeneratedDeck" class="secondary" type="button">Review preview</button>
+  </section>
+
+  <aside id="deckPreviewPanel" class="deck-preview-panel is-empty" aria-label="Deck preview" tabindex="-1">
+    <div class="deck-preview-head">
+      <div>
+        <span id="deckPreviewKicker" class="deck-preview-kicker">Deck preview</span>
+        <strong id="deckPreviewTitle">Waiting for a plan</strong>
+      </div>
+      <span id="deckPreviewMeta" class="deck-preview-meta">0 slide</span>
+    </div>
+    <div id="deckPreviewStage" class="deck-preview-stage">
+      <div class="deck-preview-empty">
+        <strong>No plan to preview yet</strong>
+        <p>Generate or load a plan to display a structured mini-preview of the deck.</p>
+      </div>
+    </div>
+    <div id="deckPreviewStrip" class="deck-preview-strip" aria-label="Plan slides"></div>
+  </aside>
+
+  <div id="deckPreviewLightbox" class="deck-preview-lightbox hidden" role="dialog" aria-modal="true" aria-labelledby="deckPreviewLightboxTitle" aria-hidden="true">
+    <button id="deckPreviewLightboxBackdrop" class="deck-preview-lightbox-backdrop" type="button" aria-label="Close enlarged preview"></button>
+    <div class="deck-preview-lightbox-card" tabindex="-1">
+      <header class="deck-preview-lightbox-head">
+        <div>
+          <span id="deckPreviewLightboxKicker" class="deck-preview-kicker">Deck preview</span>
+          <strong id="deckPreviewLightboxTitle">Slide preview</strong>
+        </div>
+        <span id="deckPreviewLightboxMeta" class="deck-preview-meta">0 slide</span>
+        <button id="btnCloseDeckPreviewLightbox" class="modal-close" type="button" aria-label="Close enlarged preview">×</button>
+      </header>
+      <div class="deck-preview-lightbox-stage">
+        <button id="btnDeckPreviewLightboxClickPrev" class="deck-preview-click-zone deck-preview-click-previous deck-preview-lightbox-click-zone" type="button" aria-label="Show previous slide"></button>
+        <button id="btnDeckPreviewLightboxClickNext" class="deck-preview-click-zone deck-preview-click-next deck-preview-lightbox-click-zone" type="button" aria-label="Show next slide"></button>
+        <button id="btnDeckPreviewLightboxPrev" class="deck-preview-lightbox-nav deck-preview-lightbox-prev" type="button" aria-label="Show previous slide">&lt;</button>
+        <div id="deckPreviewLightboxSlide" class="deck-preview-lightbox-slide"></div>
+        <button id="btnDeckPreviewLightboxNext" class="deck-preview-lightbox-nav deck-preview-lightbox-next" type="button" aria-label="Show next slide">&gt;</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================== GALLERY ================== -->
+<div id="navGallery" class="nav-panel" role="tabpanel" aria-labelledby="navTabGallery">
+
+  <section id="gallery" class="card gallery-studio-card">
+    <div class="gallery-studio-head">
+      <div>
+        <h2>Gallery</h2>
+        <p class="muted">Active layouts and icons available to the agent.</p>
+      </div>
+      <div class="sub-tabs" role="tablist" aria-label="Gallery content">
+        <button id="tabLayouts" class="sub-tab active" role="tab" aria-selected="true" aria-controls="panelLayouts" data-sub-tab="panelLayouts">Layouts</button>
+        <button id="tabIcons" class="sub-tab" role="tab" aria-selected="false" aria-controls="panelIcons" data-sub-tab="panelIcons">Icons</button>
+      </div>
+    </div>
+
+    <div class="gallery-toolbar">
+      <label class="gallery-search">
+        <span class="gallery-search-icon" aria-hidden="true"></span>
+        <input id="gallerySearch" type="search" placeholder="Search a layout or an icon..." autocomplete="off">
+      </label>
+      <div class="gallery-filter-pills" aria-label="Gallery filters">
+        <button class="gallery-filter active" type="button" data-gallery-filter="all">All <span id="galleryCountAll">0</span></button>
+        <button class="gallery-filter" type="button" data-gallery-filter="structural">Structural <span id="galleryCountStructural">0</span></button>
+        <button class="gallery-filter" type="button" data-gallery-filter="content">Content <span id="galleryCountContent">0</span></button>
+        <button class="gallery-filter" type="button" data-gallery-filter="custom">Customs <span id="galleryCountCustom">0</span></button>
+        <button class="gallery-filter" type="button" data-gallery-filter="icons">Icons <span id="galleryCountIcons">0</span></button>
+      </div>
+    </div>
+
+    <div id="panelIcons" class="sub-panel" role="tabpanel" aria-labelledby="tabIcons" hidden>
+      <div class="bulk">
+        <button class="secondary" data-bulk="icons:all">Select all</button>
+        <button class="secondary" data-bulk="icons:none">Deselect all</button>
+        <button id="btnImportIcons" class="primary bulk-primary-action" data-requires-server>+ Import icons</button>
+        <input id="customIconInput" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" multiple hidden>
+      </div>
+      <div id="iconGrid" class="gallery-grid icons"></div>
+    </div>
+
+    <div id="panelLayouts" class="sub-panel active" role="tabpanel" aria-labelledby="tabLayouts">
+      <div class="bulk">
+        <button class="secondary" data-bulk="layouts:all">Select all</button>
+        <button class="secondary" data-bulk="layouts:none">Deselect all</button>
+        <div class="dropdown bulk-primary-action">
+          <button id="btnAddCustom" class="primary" data-requires-server>+ Custom layout</button>
+          <div id="addCustomMenu" class="dropdown-menu hidden">
+            <button data-import="image">From image + vision</button>
+            <button data-import="slide">From .pptx slide</button>
+          </div>
+        </div>
+      </div>
+      <div id="layoutGrid" class="gallery-grid layouts"></div>
+    </div>
+
+  </section>
+
+</div>
+
+<!-- ================== Modal import slide .pptx ================== -->
+<div id="importSlideModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="importSlideTitle" aria-hidden="true">
+  <div class="modal-backdrop" data-close-modal="importSlide"></div>
+  <div class="modal-box" tabindex="-1">
+    <header class="modal-head">
+      <h2 id="importSlideTitle">Import slides from a .pptx</h2>
+      <button class="modal-close" data-close-modal="importSlide" aria-label="Close PPTX import">×</button>
+    </header>
+    <div class="modal-body">
+      <div id="importSlideStep1">
+        <p class="muted">Choose a .pptx file. Slides are parsed in the browser; nothing is uploaded externally.</p>
+        <label class="full">
+          <span>.pptx file</span>
+          <input id="pptxSlideInput" type="file" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation">
+        </label>
+        <p id="pptxSlideStatus" class="muted hidden"></p>
+      </div>
+      <div id="importSlideStep2" class="hidden">
+        <p class="muted">Select the slides to import. You can replace the canvas thumbnail with a custom PNG using the image button.</p>
+        <div class="actions" style="margin-bottom:0.75rem;">
+          <button id="btnSelectAllSlides" class="secondary">Select all</button>
+          <button id="btnDeselectAllSlides" class="secondary">Deselect all</button>
+          <span id="slidePickCounter" class="muted" style="margin:0 0 0 auto;">0 selected slide(s)</span>
+        </div>
+        <div id="slidePickerGrid" class="slide-picker-grid"></div>
+        <div class="actions" style="margin-top:1rem;">
+          <button id="btnImportSelectedSlides" class="primary" disabled>Import selection</button>
+          <button class="secondary" data-close-modal="importSlide">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== Modal custom layout ================== -->
+<div id="customModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="customModalTitle" aria-hidden="true">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-box" tabindex="-1">
+    <header class="modal-head">
+      <h2 id="customModalTitle">Add custom layout</h2>
+      <button class="modal-close" data-close-modal aria-label="Close layout editor">×</button>
+    </header>
+
+    <div class="modal-body">
+      <div id="customStep1">
+        <p class="muted">Import an image (mockup, photo, template). A vision LLM will detect suggested content zones.</p>
+        <label class="full">
+          <span>Layout image</span>
+          <input id="customImage" type="file" accept="image/png,image/jpeg,image/webp">
+        </label>
+        <div id="customPreview" class="custom-preview hidden">
+          <img id="customImgPreview" alt="preview">
+        </div>
+        <div class="actions">
+          <button id="btnAnalyzeImage" class="primary" disabled>Analyze image</button>
+        </div>
+      </div>
+
+      <div id="customStep2" class="hidden">
+        <p class="muted">Zones detected by the LLM. You can remove unwanted zones, rename labels, or change their type.</p>
+        <div class="custom-canvas-wrap">
+          <img id="customCanvasImg" alt="">
+          <div id="customZoneOverlay" class="zone-overlay"></div>
+        </div>
+        <label class="full">
+          <span>Layout name (what the LLM will see)</span>
+          <input id="customName" type="text" placeholder="Example: Photo cover with title">
+        </label>
+        <label class="full">
+          <span>Suggested category</span>
+          <select id="customCategory">
+            <option value="structural">Structural</option>
+            <option value="content">Content</option>
+            <option value="smartart">SmartArt</option>
+            <option value="image">Image</option>
+            <option value="custom">Custom</option>
+          </select>
+        </label>
+        <label id="customRoleWrap" class="full hidden">
+          <span>Structural role</span>
+          <select id="customRole">
+            <option value="title">Title (slide 1)</option>
+            <option value="closing">Closing (slide N)</option>
+          </select>
+        </label>
+        <p id="customCategoryRationale" class="muted"></p>
+        <label class="full">
+          <span>Description (when to pick this layout)</span>
+          <textarea id="customDesc" rows="2" placeholder="Example: Opening slide with a dominant visual and short title"></textarea>
+        </label>
+        <div class="zone-list-head">
+          <span class="muted" style="margin:0;font-size:0.85rem;">Zones</span>
+          <button id="btnAddZone" class="secondary">+ Add zone</button>
+        </div>
+        <ul id="customZoneList" class="zone-list"></ul>
+        <div class="actions">
+          <button id="btnSaveCustom" class="primary">Save layout</button>
+          <button class="secondary" data-close-modal>Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== Custom layout edit modal ================== -->
+<div id="editCustomModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="editCustomTitle" aria-hidden="true">
+  <div class="modal-backdrop" data-close-edit-custom></div>
+  <div class="modal-box modal-box-compact" tabindex="-1">
+    <header class="modal-head">
+      <h2 id="editCustomTitle">Edit custom layout</h2>
+      <button class="modal-close" data-close-edit-custom aria-label="Close layout editing">×</button>
+    </header>
+    <div class="modal-body">
+      <input id="editCustomId" type="hidden">
+      <label class="full">
+        <span>Name</span>
+        <input id="editCustomName" type="text" autocomplete="off">
+      </label>
+      <label class="full" style="margin-top: 0.8rem;">
+        <span>Category</span>
+        <select id="editCustomCategory">
+          <option value="structural">Structural</option>
+          <option value="content">Content</option>
+          <option value="smartart">SmartArt</option>
+          <option value="image">Image</option>
+          <option value="custom">Custom</option>
+        </select>
+      </label>
+      <label class="full" style="margin-top: 0.8rem;">
+        <span>Description used by the planner</span>
+        <textarea id="editCustomDescription" rows="3"></textarea>
+      </label>
+      <label id="editCustomRoleWrap" class="full hidden" style="margin-top: 0.8rem;">
+        <span>Structural role <em class="hint-inline">— which slot this layout fills</em></span>
+        <select id="editCustomRole">
+          <option value="title">Title (slide 1)</option>
+          <option value="closing">Closing (slide N)</option>
+        </select>
+      </label>
+      <div class="actions">
+        <button id="btnSaveEditCustom" class="primary">Save</button>
+        <button id="btnRetryLayoutVision" class="secondary" type="button">Retry Vision</button>
+        <button class="secondary" data-close-edit-custom>Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== Custom icon edit modal ================== -->
+<div id="editCustomIconModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="editCustomIconTitle" aria-hidden="true">
+  <div class="modal-backdrop" data-close-edit-custom-icon></div>
+  <div class="modal-box modal-box-compact" tabindex="-1">
+    <header class="modal-head">
+      <h2 id="editCustomIconTitle">Edit icon</h2>
+      <button class="modal-close" data-close-edit-custom-icon aria-label="Close icon editing">×</button>
+    </header>
+    <div class="modal-body">
+      <input id="editCustomIconId" type="hidden">
+      <label class="full">
+        <span>Description used by the planner</span>
+        <textarea id="editCustomIconDescription" rows="3"></textarea>
+      </label>
+      <div class="actions">
+        <button id="btnSaveEditCustomIcon" class="primary" type="button">Save</button>
+        <button id="btnRetryIconVision" class="secondary" type="button">Retry Vision</button>
+        <button class="secondary" data-close-edit-custom-icon type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================== HISTORY ================== -->
+<div id="navHistory" class="nav-panel" role="tabpanel" aria-labelledby="navTabHistory">
+
+  <section id="historyCard" class="card">
+    <div class="card-head">
+      <h2>Plan history <span class="hint">- last 20, rolling</span></h2>
+      <button id="btnClearHistory" class="secondary">Clear history</button>
+    </div>
+    <ul id="historyList" class="history-list">
+      <li class="history-empty">No plan yet - generate one from Studio.</li>
+    </ul>
+  </section>
+
+</div>
+
+<!-- ================== SETTINGS ================== -->
+<div id="navSettings" class="nav-panel" role="tabpanel" aria-labelledby="navTabSettings">
+
+  <div class="settings-layout">
+  <section id="config" class="card settings-config-card">
+    <h2>LLM configuration</h2>
+    <div class="grid">
+      <label class="full">
+        <span>Base URL</span>
+        <input id="baseUrl" type="text" value="https://api.openai.com/v1" autocomplete="off">
+      </label>
+      <label class="full">
+        <span>Model</span>
+        <input id="model" type="text" value="gpt-4o-mini" autocomplete="off">
+      </label>
+      <label class="full">
+        <span>Vision Model <em class="hint-inline">- required for custom layout analysis; must support images</em></span>
+        <input id="visionModel" type="text" placeholder="e.g. nvidia/nemotron-nano-12b-v2-vl:free (OpenRouter)" autocomplete="off">
+      </label>
+      <label class="full">
+        <span>API Key</span>
+        <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off">
+      </label>
+      <label class="full inline">
+        <input id="rememberKey" type="checkbox">
+        <span>Save the key in <code>config/config.local.js</code></span>
+      </label>
+      <p class="muted full">By default, the API key stays in this tab. If enabled, it is stored in plain text in <code>config/config.local.js</code>, ignored by Git.</p>
+      <div class="actions full settings-actions">
+        <button id="btnTestConnection" class="secondary" type="button">Test connection</button>
+        <p id="connectionStatus" class="connection-status info" role="status" aria-live="polite"></p>
+      </div>
+      <label class="full inline">
+        <input id="debugLogs" type="checkbox">
+        <span>Debug mode: show full payloads in logs</span>
+      </label>
+    </div>
+    <p class="muted tip">
+      You can also create <code>config/config.local.js</code> (copy
+      <code>config/config.example.js</code>) to prefill LLM fields at startup.
+    </p>
+  </section>
+
+  <section id="dataBackupCard" class="card data-backup-card">
+    <div class="card-head">
+      <div>
+        <h2>Data &amp; storage</h2>
+        <p class="muted">customs/ - versioned source of truth.</p>
+      </div>
+    </div>
+    <div class="data-backup-list" aria-live="polite">
+      <div class="data-backup-row">
+        <span>Layouts</span>
+        <strong id="dataLayoutsCount">0 / 50</strong>
+      </div>
+      <div class="data-backup-row">
+        <span>Icons</span>
+        <strong id="dataIconsCount">0 / 30</strong>
+      </div>
+      <div class="data-backup-row">
+        <span>Photos</span>
+        <strong id="dataPhotosCount">0 / 10</strong>
+      </div>
+      <div class="data-backup-row">
+        <span>History</span>
+        <strong id="dataHistoryCount">0 / 20</strong>
+      </div>
+      <div class="data-backup-row">
+        <span>Total size</span>
+        <strong id="dataStoreSize">0 / 128 MB</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="card backup-share-card">
+    <h2>Backup / sharing</h2>
+    <p class="muted">Export or restore repository JSON as a ZIP, or move configuration only. Layout imports live in Gallery.</p>
+    <div class="backup-action-grid">
+      <button id="btnExportBackup" class="primary">Export full backup</button>
+      <button id="btnImportBackup" class="secondary" data-requires-server>Restore full backup</button>
+      <input id="importBackupInput" type="file" accept="application/zip,.zip" class="hidden">
+      <button id="btnExportConfig" class="secondary">Export config (JSON)</button>
+      <button id="btnImportConfig" class="secondary" data-requires-server>Restore config</button>
+      <input id="importFile" type="file" accept="application/json,.json" class="hidden">
+    </div>
+  </section>
+  </div>
+
+</div>
+
+</main>
+
+<!-- Optional user-edited config; HTTP loads it through a same-origin JSON endpoint. -->
+<script src="core/local_config.js"></script>
+<script src="asset_pack.generated.js"></script>
+<script src="core/constraints.generated.js"></script>
+<script src="lib/pptxgen.bundle.js"></script>
+<script src="lib/jszip.min.js"></script>
+<script src="core/security.js"></script>
+<script src="core/repo_store.js"></script>
+<script src="catalogs.js"></script>
+<script src="core/contracts.js"></script>
+<script src="core/llm_context.js"></script>
+<script src="core/ui.js"></script>
+<script src="core/download.js"></script>
+<script src="agents/llm.js"></script>
+<script src="agents/brief_chat.js"></script>
+<script src="agents/deck_planner.js"></script>
+<script src="agents/speaker_notes.js"></script>
+<script src="agents/context_compress.js"></script>
+<script src="agents/vision.js"></script>
+<script src="builder/theme.js"></script>
+<script src="builder/image_cache.js"></script>
+<script src="builder/primitives.js"></script>
+<script src="builder/layouts/title.js"></script>
+<script src="builder/layouts/closing.js"></script>
+<script src="builder/layouts/cards.js"></script>
+<script src="builder/layouts/two_col.js"></script>
+<script src="builder/layouts/stats.js"></script>
+<script src="builder/layouts/big_stats.js"></script>
+<script src="builder/layouts/kpi_hero.js"></script>
+<script src="builder/layouts/timeline.js"></script>
+<script src="builder/layouts/chart_bar.js"></script>
+<script src="builder/layouts/compare_two.js"></script>
+<script src="builder/layouts/quote.js"></script>
+<script src="builder/layouts/logo_grid.js"></script>
+<script src="builder/layouts/pyramid.js"></script>
+<script src="builder/layouts/funnel.js"></script>
+<script src="builder/layouts/matrix_2x2.js"></script>
+<script src="builder/layouts/process_circular.js"></script>
+<script src="builder/layouts/swot.js"></script>
+<script src="builder/layouts/venn.js"></script>
+<script src="builder/layouts/photo_hero.js"></script>
+<script src="builder/layouts/split_image_text.js"></script>
+<script src="builder/layouts/_custom.js"></script>
+<script src="builder/build_deck.js"></script>
+<script src="builder/preview_renderer.js"></script>
+<script src="gallery.js"></script>
+<script src="photos.js"></script>
+<script src="pptx_parser.js"></script>
+<script src="pptx_thumb.js"></script>
+<script src="custom_icons.js"></script>
+<script src="app.js"></script>
+<script src="custom_layouts.js"></script>
+<script src="customs_io.js"></script>
+</body>
+</html>

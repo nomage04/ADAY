@@ -1,0 +1,12 @@
+{
+  "id": "closing",
+  "name": "Closing",
+  "category": "structural",
+  "description": "Closing slide with thank-you message and optional call to action.",
+  "renderer": {
+    "type": "registered",
+    "name": "closing"
+  },
+  "schema": {"required":["title"],"properties":{"title":{"type":"string","minLength":1},"message":{"type":"string"},"cta":{"type":"string"}},"additionalProperties":false},
+  "structural_role": "closing"
+}

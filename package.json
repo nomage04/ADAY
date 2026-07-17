@@ -1,0 +1,52 @@
+{
+  "name": "aday",
+  "version": "1.0.0",
+  "description": "ADAY (Assisted Deck Authoring for You), a local-first application for editable PowerPoint generation.",
+  "private": true,
+  "directories": {
+    "lib": "web/lib"
+  },
+  "scripts": {
+    "build:assets": "python tools/build_asset_pack.py --source packs/default --out web/asset_pack.generated.js",
+    "check:assets": "python tools/build_asset_pack.py --source packs/default --out web/asset_pack.generated.js --check",
+    "build:constraints": "python tools/build_constraints.py --source config/repository_constraints.json --out web/core/constraints.generated.js",
+    "check:constraints": "python tools/build_constraints.py --source config/repository_constraints.json --out web/core/constraints.generated.js --check",
+    "check:syntax": "node tools/check_syntax.cjs",
+    "check:hygiene": "node tools/check_hygiene.cjs",
+    "check:secrets": "node tools/check_secrets.cjs",
+    "test:unit": "node --test tests/*.test.cjs",
+    "test:server": "python -m unittest tests.test_server -v",
+    "test:e2e": "node tests/e2e/server_smoke.mjs",
+    "test:renderers": "node tests/e2e/renderers_smoke.mjs",
+    "test:preview": "node tests/e2e/preview_renderer_smoke.mjs",
+    "test:smartart": "node tests/e2e/pptx_smartart_smoke.mjs",
+    "serve": "python -m backend.server --no-open",
+    "check": "npm run check:assets && npm run check:constraints && npm run check:syntax && npm run check:hygiene && npm run check:secrets && npm run test:unit && npm run test:server && npm run test:e2e && npm run test:renderers && npm run test:preview && npm run test:smartart",
+    "test": "npm run test:unit"
+  },
+  "keywords": [
+    "powerpoint",
+    "pptx",
+    "presentation",
+    "generative-ai",
+    "local-first"
+  ],
+  "author": "nomage04",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nomage04/ADAY.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nomage04/ADAY/issues"
+  },
+  "homepage": "https://github.com/nomage04/ADAY#readme",
+  "engines": {
+    "node": ">=24",
+    "python": ">=3.12"
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "playwright": "1.61.0"
+  }
+}

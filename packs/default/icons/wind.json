@@ -1,0 +1,9 @@
+{
+  "id": "wind",
+  "name": "Wind",
+  "description": "wind icon for environment topics",
+  "tags": [
+    "environment",
+    "wind"
+  ]
+}

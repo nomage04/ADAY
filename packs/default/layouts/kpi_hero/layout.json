@@ -1,0 +1,37 @@
+{
+  "id": "kpi_hero",
+  "name": "Kpi Hero",
+  "category": "content",
+  "description": "Single oversized KPI in a centered hero treatment.",
+  "renderer": {
+    "type": "registered",
+    "name": "kpi_hero"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "value",
+      "label"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "value": {
+        "type": [
+          "string",
+          "number"
+        ]
+      },
+      "label": {
+        "type": "string",
+        "minLength": 1
+      },
+      "sublabel": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  }
+}

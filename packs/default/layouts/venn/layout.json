@@ -1,0 +1,44 @@
+{
+  "id": "venn",
+  "name": "Venn",
+  "category": "smartart",
+  "description": "Venn diagram for overlapping sets or shared capabilities.",
+  "renderer": {
+    "type": "registered",
+    "name": "venn"
+  },
+  "schema": {
+    "required": [
+      "title",
+      "sets"
+    ],
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "sets": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 3,
+        "items": {
+          "type": "object",
+          "required": [
+            "label"
+          ],
+          "properties": {
+            "label": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "intersection": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  }
+}
