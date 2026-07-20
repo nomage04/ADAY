@@ -2592,20 +2592,27 @@
     }
   }
 
+  // Some models double-escape newlines inside the display JSON string;
+  // turn any literal \n sequences back into real line breaks.
+  function normalizePlannerDisplay(value) {
+    if (typeof value !== "string") return "";
+    return value.includes("\n") ? value : value.replace(/\\n/g, "\n");
+  }
+
   function normalizeDeckPlannerResult(data) {
     if (Array.isArray(data)) return { plan: data, warnings: [], display: "" };
     if (Array.isArray(data?.plan)) {
       return {
         ...data,
         warnings: Array.isArray(data.warnings) ? data.warnings : [],
-        display: typeof data.display === "string" ? data.display : "",
+        display: normalizePlannerDisplay(data.display),
       };
     }
     if (Array.isArray(data?.slides)) {
       return {
         plan: data.slides,
         warnings: Array.isArray(data.warnings) ? data.warnings : [],
-        display: typeof data.display === "string" ? data.display : "",
+        display: normalizePlannerDisplay(data.display),
       };
     }
     return data;
