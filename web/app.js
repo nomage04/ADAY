@@ -2235,6 +2235,7 @@
       expectedSlideCount: slideCount,
       enabledLayouts: LayoutSelection,
       uniqueLayoutsPerDeck,
+      requiredPhotoCount: typeof getPhotos === "function" ? getPhotos().length : 0,
     });
   }
 

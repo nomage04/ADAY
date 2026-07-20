@@ -107,6 +107,27 @@ test("accepts feasible custom-only selections for requested slide count", () => 
   assert.equal(issues.contentLayoutCount, 3);
 });
 
+test("flags photo requirements no enabled layout can satisfy", () => {
+  const { contracts, pack } = bootContracts();
+  const textOnly = pack.layoutOrder.filter(id => !pack.layouts[id].schema?.properties?.image);
+  const photoCapable = pack.layoutOrder.find(id => pack.layouts[id].schema?.properties?.image);
+  assert.ok(photoCapable, "expected at least one built-in layout with an image field");
+
+  const blocked = contracts.collectSelectionIssues({
+    expectedSlideCount: 6,
+    enabledLayouts: new Set(textOnly),
+    requiredPhotoCount: 2,
+  });
+  assert.match(blocked.errors.join("\n"), /no enabled layout can hold an image/);
+
+  const feasible = contracts.collectSelectionIssues({
+    expectedSlideCount: 6,
+    enabledLayouts: new Set([...textOnly, photoCapable]),
+    requiredPhotoCount: 2,
+  });
+  assert.equal(feasible.errors.some(e => /photo/.test(e)), false);
+});
+
 test("enforces layout schemas and required photo usage", () => {
   const { contracts } = bootContracts();
   const bad = validPlan();

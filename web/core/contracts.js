@@ -173,6 +173,21 @@
       const prefix = uniqueLayoutsPerDeck ? "selection: unique layout mode" : "selection";
       errors.push(`${prefix}: ${requiredContentLayouts} distinct content layouts required for ${expectedSlideCount} slides, ${contentLayouts.length} active`);
     }
+
+    // Photos are a hard placement requirement: with none of the enabled
+    // layouts able to hold an image, generation can never validate.
+    const requiredPhotoCount = Number.isInteger(context.requiredPhotoCount) ? context.requiredPhotoCount : 0;
+    if (requiredPhotoCount > 0) {
+      const supportsImage = layout => {
+        const definition = layoutDefinition(layout);
+        if (!definition) return false;
+        if (Array.isArray(definition.zones) && definition.zones.some(zone => zone.type === "image")) return true;
+        return !!definition.schema?.properties?.image;
+      };
+      if (!enabledLayouts.some(supportsImage)) {
+        errors.push(`selection: ${requiredPhotoCount} required photo(s) but no enabled layout can hold an image — enable photo_hero or split_image_text (or a custom layout with an image zone), or remove the photos`);
+      }
+    }
     return { errors, warnings, contentLayoutCount: contentLayouts.length, requiredContentLayouts };
   }
 
