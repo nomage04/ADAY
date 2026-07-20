@@ -3605,7 +3605,9 @@
 
   async function confirmProviderDestination(baseUrl) {
     let host;
-    try { host = new URL(baseUrl).host; }
+    // Relative base URLs (e.g. "/v1" for the bundled proxy) resolve against
+    // the app's own origin instead of being rejected.
+    try { host = new URL(baseUrl, window.location.origin).host; }
     catch { alert("Invalid Base URL."); return false; }
     const settings = window.PPTGen.repoStore.getDocument("settings");
     let sessionHost = "";
