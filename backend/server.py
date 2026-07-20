@@ -707,6 +707,10 @@ async def proxy(path: str, request: Request):
     response_headers = {}
     if upstream.headers.get("cache-control"):
         response_headers["cache-control"] = upstream.headers["cache-control"]
+    # Le flux relaie les octets bruts : si l'amont a compressé, le client doit
+    # le savoir, sinon la réponse est illisible.
+    if upstream.headers.get("content-encoding"):
+        response_headers["content-encoding"] = upstream.headers["content-encoding"]
     return StreamingResponse(
         upstream.aiter_raw(), status_code=upstream.status_code,
         media_type=upstream.headers.get("content-type"), headers=response_headers,
