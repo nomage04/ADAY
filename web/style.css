@@ -3463,3 +3463,5 @@ h1, h2, h3,
   object-fit: contain;
   flex: none;
 }
+/* Le monogramme AD remplace l'ancien pictogramme dessiné en CSS. */
+.brand::before { display: none; }
