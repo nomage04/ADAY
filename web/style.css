@@ -1,13 +1,13 @@
 :root {
-  --primary: #0b4d3a;          /* deep forest green (header / titles) */
-  --accent: #1e7a4d;            /* green accent (active tab, focus) */
-  --accent-hover: #145e3a;
-  --bg: #f8f9fa;
+  --primary: #4a3826;          /* deep forest green (header / titles) */
+  --accent: #7a5c3b;            /* green accent (active tab, focus) */
+  --accent-hover: #65492c;
+  --bg: #faf7f2;
   --card-bg: #ffffff;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --text: #0f172a;
-  --muted: #64748b;
+  --border: #e8e0d2;
+  --border-strong: #d6c9b6;
+  --text: #3d2f24;
+  --muted: #6b5744;
   --warn: #d97706;
   --red: #dc2626;
 
@@ -2031,25 +2031,25 @@ select:focus {
 
 /* Studio shell refresh. */
 :root {
-  --forest: #0b4d3a;
-  --forest-700: #0f5d46;
-  --moss: #1e7a4d;
+  --forest: #4a3826;
+  --forest-700: #5a4530;
+  --moss: #7a5c3b;
   --mint: #10b981;
   --mint-soft: #ecfdf5;
   --mint-line: #a7f3d0;
   --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --surface-3: #f1f4f8;
-  --ink: #0f172a;
-  --ink-2: #334155;
-  --line: #e6e9ef;
+  --surface-2: #f6f1e8;
+  --surface-3: #f0e9dc;
+  --ink: #3d2f24;
+  --ink-2: #5c4a3a;
+  --line: #e8e0d2;
   --deck-bg: #1f2733;
   --deck-bg-2: #27313f;
   --primary: var(--forest);
   --accent: var(--moss);
   --accent-hover: #166940;
   --border: var(--line);
-  --border-strong: #cbd5e1;
+  --border-strong: #d6c9b6;
   --text: var(--ink);
   --card-bg: var(--surface);
   --radius-card: 8px;
@@ -3421,4 +3421,45 @@ button:disabled, button[disabled] { cursor: not-allowed; }
   .plan-output td:nth-child(2)::before { content: "Layout"; }
   .plan-output td:nth-child(3)::before { content: "Title"; }
   .plan-output td:nth-child(4)::before { content: "Content"; }
+}
+
+
+/* ================= Warm Editorial reskin (parité visuelle V2) ============= */
+@font-face {
+  font-family: "Playfair Display";
+  src: url("fonts/playfair-display-latin-500-normal.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Playfair Display";
+  src: url("fonts/playfair-display-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Playfair Display";
+  src: url("fonts/playfair-display-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+h1, h2, h3,
+.brand h1,
+.topbar-title h1 {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  letter-spacing: 0.01em;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.brand-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex: none;
 }
