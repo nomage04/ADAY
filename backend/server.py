@@ -34,10 +34,11 @@ MAX_STORE_BYTES = CONSTRAINTS["maxStoreBytes"]
 MAX_IMAGE_SIDE = CONSTRAINTS["maxImageSide"]
 MAX_IMAGE_PIXELS = CONSTRAINTS["maxImagePixels"]
 LLM_BASE = os.getenv("LLM_BASE", "http://localhost:8080").rstrip("/")
-# Déploiement cloud : si PPTGEN_LLM_API_KEY est définie, le proxy /v1/*
-# remplace l'Authorization entrante par cette clé — elle ne quitte jamais le
-# serveur. PPTGEN_PROXY_TOKEN (optionnel) exige alors que le navigateur
-# présente ce jeton (champ « API Key » de l'UI) pour utiliser le proxy.
+# Cloud deployment: when PPTGEN_LLM_API_KEY is set, the /v1/* proxy swaps
+# the incoming Authorization for that key whenever the browser presents
+# PPTGEN_PROXY_TOKEN (the UI "API Key" field) — the key never leaves the
+# server. Any other Authorization is forwarded untouched, so visitors can
+# also bring their own provider API key.
 LLM_API_KEY = os.getenv("PPTGEN_LLM_API_KEY", "")
 PROXY_TOKEN = os.getenv("PPTGEN_PROXY_TOKEN", "")
 
@@ -93,7 +94,7 @@ def _string(value: object, name: str, maximum: int, *, required: bool = False) -
     if value is None and not required:
         return None
     if not isinstance(value, str):
-        raise ValueError(f"{name} doit être une chaîne")
+        raise ValueError(f"{name} must be a string")
     result = value.strip()
     if (required and not result) or len(value) > maximum:
         raise ValueError(f"{name} invalide")
@@ -182,7 +183,7 @@ def _validate_analysis(value: object, *, classification: bool) -> None:
 
 def _percent(value: object, name: str, *, positive: bool = False) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ValueError(f"{name} doit être numérique")
+        raise ValueError(f"{name} must be numeric")
     number = float(value)
     if number < 0 or number > 100 or (positive and number == 0):
         raise ValueError(f"{name} hors limites")
@@ -199,7 +200,7 @@ def _validate_style(value: object) -> None:
             _string(style[key], key, maximum)
     for key in ("bold", "italic"):
         if key in style and not isinstance(style[key], bool):
-            raise ValueError(f"{key} doit être booléen")
+            raise ValueError(f"{key} must be a boolean")
     if "align" in style and style["align"] not in ALIGNS:
         raise ValueError("align invalide")
 
@@ -244,7 +245,7 @@ def _validate_background_shape(value: object) -> None:
         raise ValueError("align invalide")
     for key in ("bold", "italic"):
         if key in shape and not isinstance(shape[key], bool):
-            raise ValueError(f"{key} doit être booléen")
+            raise ValueError(f"{key} must be a boolean")
 
 
 def validate_layout(value: object, identifier: str) -> dict:
@@ -255,13 +256,13 @@ def validate_layout(value: object, identifier: str) -> dict:
     _string(item.get("name"), "name", 200, required=True)
     _string(item.get("description"), "description", 2000)
     if item.get("category", "custom") not in CATEGORIES:
-        raise ValueError("catégorie invalide")
+        raise ValueError("invalid category")
     if item.get("category", "custom") == "structural" and item.get("structural_role") not in {"title", "closing"}:
-        raise ValueError("rôle structurel requis")
+        raise ValueError("structural role required")
     if item.get("category", "custom") != "structural" and "structural_role" in item:
-        raise ValueError("rôle structurel interdit")
+        raise ValueError("structural role not allowed")
     if "structural_role" in item and item["structural_role"] not in {"title", "closing"}:
-        raise ValueError("rôle structurel invalide")
+        raise ValueError("invalid structural role")
     if "source" in item and item["source"] != "pptx":
         raise ValueError("source invalide")
     _string(item.get("createdAt"), "createdAt", 64)
@@ -290,7 +291,7 @@ def validate_icon(value: object, identifier: str) -> dict:
     item = _record(value)
     _only(item, {"id", "name", "description", "dataUrl", "addedAt", "analysis"})
     if item.get("id") != identifier or not CUSTOM_ID_RE.fullmatch(identifier):
-        raise ValueError("id d’icône invalide")
+        raise ValueError("invalid icon id")
     _string(item.get("name"), "name", 200, required=True)
     _string(item.get("description"), "description", 1000)
     _string(item.get("addedAt"), "addedAt", 64)
@@ -323,7 +324,7 @@ def validate_history(value: object, identifier: str) -> dict:
     if not isinstance(plan, list) or not plan or len(plan) > 100:
         raise ValueError("plan invalide")
     if item.get("slideCount") != len(plan):
-        raise ValueError("slideCount incohérent")
+        raise ValueError("inconsistent slideCount")
     _string(item.get("display", ""), "display", 1024 * 1024)
     warnings = item.get("warnings", [])
     if not isinstance(warnings, list) or len(warnings) > 100 or any(not isinstance(v, str) or len(v) > 2000 for v in warnings):
@@ -339,7 +340,7 @@ def validate_settings(value: object) -> dict:
             _string(item[key], key, maximum)
     for key in ("rememberKey", "debugLogs"):
         if key in item and not isinstance(item[key], bool):
-            raise ValueError(f"{key} doit être booléen")
+            raise ValueError(f"{key} must be a boolean")
     return item
 
 
@@ -385,7 +386,7 @@ class RepositoryStore:
     @staticmethod
     def _decode(raw: bytes) -> object:
         if len(raw) > MAX_JSON_BYTES:
-            raise ValueError("JSON supérieur à 4 Mio")
+            raise ValueError("JSON larger than 4 MiB")
         try:
             return json.loads(raw.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as error:
@@ -395,7 +396,7 @@ class RepositoryStore:
     def _encode(value: object) -> bytes:
         raw = (json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
         if len(raw) > MAX_JSON_BYTES:
-            raise ValueError("JSON supérieur à 4 Mio")
+            raise ValueError("JSON larger than 4 MiB")
         return raw
 
     @staticmethod
@@ -432,9 +433,9 @@ class RepositoryStore:
         if not path.exists() and folder.exists():
             count = sum(1 for candidate in folder.glob("*.json") if candidate.is_file())
             if count >= COLLECTION_CAPS[collection]:
-                raise StoreCapacityError(f"capacité {collection} atteinte ({COLLECTION_CAPS[collection]})")
+                raise StoreCapacityError(f"{collection} capacity reached ({COLLECTION_CAPS[collection]})")
         if self._store_size(replacing=path) + len(raw) > MAX_STORE_BYTES:
-            raise StoreCapacityError("capacité totale du store atteinte (128 Mio)")
+            raise StoreCapacityError("total store capacity reached (128 MiB)")
 
     def state(self) -> dict:
         result: dict[str, object] = {name: [] for name in COLLECTIONS}
@@ -445,7 +446,7 @@ class RepositoryStore:
                 continue
             paths = sorted(folder.glob("*.json"), key=lambda item: item.name)
             if len(paths) > COLLECTION_CAPS[collection]:
-                result["warnings"].append(f"{directory} dépasse la capacité de {COLLECTION_CAPS[collection]} entrées")
+                result["warnings"].append(f"{directory} exceeds the capacity of {COLLECTION_CAPS[collection]} entries")
                 paths = paths[:COLLECTION_CAPS[collection]]
             for path in paths:
                 try:
@@ -455,7 +456,7 @@ class RepositoryStore:
                     result[collection].append(normalized)
                 except (OSError, ValueError) as error:
                     if len(result["warnings"]) < 100:
-                        result["warnings"].append(f"{path.relative_to(self.root)} ignoré : {error}")
+                        result["warnings"].append(f"{path.relative_to(self.root)} skipped: {error}")
         for name, filename in DOCUMENTS.items():
             path = self.root / filename
             if not path.exists():
@@ -465,7 +466,7 @@ class RepositoryStore:
                 result[name] = DOCUMENT_VALIDATORS[name](value)
             except (OSError, ValueError) as error:
                 if len(result["warnings"]) < 100:
-                    result["warnings"].append(f"{filename} ignoré : {error}")
+                    result["warnings"].append(f"{filename} skipped: {error}")
         return result
 
     async def put(self, collection: str, identifier: str, value: object) -> dict:
@@ -498,7 +499,7 @@ class RepositoryStore:
         async with self.lock:
             current_size = await asyncio.to_thread(self._store_size, replacing=path)
             if current_size + len(raw) > MAX_STORE_BYTES:
-                raise StoreCapacityError("capacité totale du store atteinte (128 Mio)")
+                raise StoreCapacityError("total store capacity reached (128 MiB)")
             await asyncio.to_thread(self._atomic_write, path, raw)
         return normalized
 
@@ -602,13 +603,13 @@ async def _limited_body(request: Request, maximum: int) -> bytes:
         except ValueError as error:
             raise ValueError("Content-Length invalide") from error
         if declared > maximum:
-            raise BodyTooLarge(f"corps supérieur à {maximum // (1024 * 1024)} Mio")
+            raise BodyTooLarge(f"body larger than {maximum // (1024 * 1024)} MiB")
     chunks = []
     size = 0
     async for chunk in request.stream():
         size += len(chunk)
         if size > maximum:
-            raise BodyTooLarge(f"corps supérieur à {maximum // (1024 * 1024)} Mio")
+            raise BodyTooLarge(f"body larger than {maximum // (1024 * 1024)} MiB")
         chunks.append(chunk)
     return b"".join(chunks)
 
@@ -638,7 +639,7 @@ async def put_local_config(request: Request):
     except ValueError as error:
         raise HTTPException(400, str(error)) from error
     except OSError as error:
-        raise HTTPException(507, f"écriture impossible : {error}") from error
+        raise HTTPException(507, f"write failed: {error}") from error
 
 
 @app.put("/api/{collection}/{identifier}")
@@ -653,7 +654,7 @@ async def put_entry(collection: str, identifier: str, request: Request):
     except ValueError as error:
         raise HTTPException(400, str(error)) from error
     except OSError as error:
-        raise HTTPException(507, f"écriture impossible : {error}") from error
+        raise HTTPException(507, f"write failed: {error}") from error
 
 
 @app.delete("/api/{collection}/{identifier}", status_code=204)
@@ -680,7 +681,7 @@ async def put_document(document: str, request: Request):
     except ValueError as error:
         raise HTTPException(400, str(error)) from error
     except OSError as error:
-        raise HTTPException(507, f"écriture impossible : {error}") from error
+        raise HTTPException(507, f"write failed: {error}") from error
 
 
 @app.post("/v1/{path:path}")
@@ -694,9 +695,7 @@ async def proxy(path: str, request: Request):
         "accept": request.headers.get("accept", "application/json"),
     }
     authorization = request.headers.get("authorization")
-    if LLM_API_KEY:
-        if PROXY_TOKEN and authorization != f"Bearer {PROXY_TOKEN}":
-            raise HTTPException(401, "jeton de proxy invalide")
+    if LLM_API_KEY and PROXY_TOKEN and authorization == f"Bearer {PROXY_TOKEN}":
         headers["authorization"] = f"Bearer {LLM_API_KEY}"
     elif authorization:
         headers["authorization"] = authorization
@@ -707,8 +706,8 @@ async def proxy(path: str, request: Request):
     response_headers = {}
     if upstream.headers.get("cache-control"):
         response_headers["cache-control"] = upstream.headers["cache-control"]
-    # Le flux relaie les octets bruts : si l'amont a compressé, le client doit
-    # le savoir, sinon la réponse est illisible.
+    # The stream relays raw bytes: if upstream compressed them, the client
+    # must know, otherwise the response is unreadable.
     if upstream.headers.get("content-encoding"):
         response_headers["content-encoding"] = upstream.headers["content-encoding"]
     return StreamingResponse(

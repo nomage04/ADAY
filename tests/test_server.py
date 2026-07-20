@@ -249,17 +249,48 @@ class ProxyCredentialTests(unittest.TestCase):
         self.data_patch.stop()
         self.temp.cleanup()
 
-    def test_server_side_key_requires_the_proxy_token(self):
+    def test_other_keys_are_forwarded_untouched(self):
+        captured = {}
+
+        class FakeUpstream:
+            status_code = 200
+            headers = {"content-type": "application/json"}
+
+            async def aiter_raw(self):
+                yield b"{}"
+
+            async def aclose(self):
+                return None
+
+        class FakeClient:
+            def build_request(self, method, url, content=None, headers=None):
+                captured["headers"] = dict(headers or {})
+                return object()
+
+            async def send(self, request, stream=False):
+                return FakeUpstream()
+
         with mock.patch.object(server_module, "LLM_API_KEY", "sk-secret"), \
-                mock.patch.object(server_module, "PROXY_TOKEN", "demo-token"):
-            refused = self.client.post(
+                mock.patch.object(server_module, "PROXY_TOKEN", "demo-token"), \
+                mock.patch.object(
+                    server_module.app.state, "client", FakeClient(), create=True
+                ):
+            own_key = self.client.post(
                 "/v1/chat/completions",
                 json={},
-                headers={"authorization": "Bearer wrong"},
+                headers={"authorization": "Bearer sk-visitor-own-key"},
             )
-            self.assertEqual(refused.status_code, 401)
+            self.assertEqual(own_key.status_code, 200)
+            self.assertEqual(
+                captured["headers"]["authorization"], "Bearer sk-visitor-own-key"
+            )
+            self.assertNotIn("sk-secret", str(captured["headers"]))
+
+            captured.clear()
             missing = self.client.post("/v1/chat/completions", json={})
-            self.assertEqual(missing.status_code, 401)
+            self.assertEqual(missing.status_code, 200)
+            self.assertNotIn("authorization", captured["headers"])
+            self.assertNotIn("sk-secret", str(captured["headers"]))
 
     def test_server_side_key_replaces_the_browser_authorization(self):
         captured = {}

@@ -98,7 +98,7 @@ The FastAPI app stays bound to `127.0.0.1:8000`; only Caddy is reachable, termin
 Two credential modes:
 
 - **Visitor key (default)** — each visitor pastes their own DashScope key in Settings; it stays in the browser tab.
-- **Server key** — set `PPTGEN_LLM_API_KEY` (and a `PPTGEN_PROXY_TOKEN`) in `.env`: the `/v1` proxy then replaces the incoming Authorization with the server-side key, which never reaches the browser. Visitors use Base URL `/v1` and enter the proxy token as the API key.
+- **Server key** — set `PPTGEN_LLM_API_KEY` (and a `PPTGEN_PROXY_TOKEN`) in `.env`: when the browser presents the proxy token as its API key, the `/v1` proxy swaps it for the server-side key, which never reaches the browser. Any other key presented on `/v1` is forwarded to the provider untouched, so both modes work at the same time: visitors bring their own DashScope key (Base URL `/v1`), while the token unlocks the server key.
 
 ## Repository structure
 
