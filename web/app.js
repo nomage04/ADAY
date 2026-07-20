@@ -1128,7 +1128,7 @@
     const diagnostic = typeof classifyLlmError === "function" ? classifyLlmError(error) : null;
     const code = diagnostic?.code || "";
     const message = String(error?.message || "");
-    return ["timeout", "network", "parse"].includes(code) || /arr[eê]t|arret/i.test(message);
+    return ["timeout", "network", "parse"].includes(code) || /arr[eê]t|arret|stopp/i.test(message);
   }
 
   function setStatus(text, visible = true) {
@@ -1150,15 +1150,15 @@
 
   const BRIEF_STATUS = {
     ready: {
-      label: "Contexte suffisant",
+      label: "Sufficient context",
       fallbackReason: "The LLM estimates it has enough context to follow a precise plan.",
     },
     clarify: {
-      label: "Clarifications utiles",
+      label: "Helpful clarifications",
       fallbackReason: "The LLM can proceed with assumptions, but recommends clarifying a few points.",
     },
     risky: {
-      label: "Contexte faible",
+      label: "Low context",
       fallbackReason: "The brief lacks context and the LLM may invent details.",
     },
   };
@@ -1230,16 +1230,19 @@
   function normalizeAssumptionText(text) {
     return String(text || "")
       .replace(/^Ça marche,\s*/i, "")
-      .replace(/^Je pars pour l'instant sur\s*/i, "Je suppose que ")
-      .replace(/^Je pars sur\s*/i, "Je suppose que ")
+      .replace(/^Got it[,—-]*\s*/i, "")
+      .replace(/^Je pars pour l'instant sur\s*/i, "I assume ")
+      .replace(/^Je pars sur\s*/i, "I assume ")
+      .replace(/^For now I'll (?:start from|go with)\s*/i, "I assume ")
+      .replace(/^I'll (?:start from|go with)\s*/i, "I assume ")
       .trim();
   }
 
   function isUsefulRecommendedAssumption(text) {
     const value = String(text || "").trim();
     if (!value) return false;
-    const genericDeck = /deck\s+de\s+\d+\s+slides|(?:^|\s)\d+\s+slides|nombre\s+de\s+slides|autour\s+d[eu]'?ne?\s+strat/i.test(value);
-    const decisionTerms = /suppos|hypoth[eè]se|par d[eé]faut|faute de pr[eé]cision|plut[oô]t|je retiens|je consid[eè]re|organis|particip|sponsor|interne|partenaire|public|audience|usage|objectif/i.test(value);
+    const genericDeck = /deck\s+de\s+\d+\s+slides|deck\s+of\s+\d+\s+slides|(?:^|\s)\d+\s+slides|nombre\s+de\s+slides|number\s+of\s+slides|autour\s+d[eu]'?ne?\s+strat/i.test(value);
+    const decisionTerms = /suppos|assum|hypoth[eè]se|par d[eé]faut|by default|rather than|faute de pr[eé]cision|plut[oô]t|je retiens|je consid[eè]re|I consider|organis|particip|sponsor|interne|internal|partenaire|partner|public|audience|usage|objectif|goal/i.test(value);
     if (genericDeck && !/organis|particip|sponsor|interne|partenaire|public|audience|usage|objectif/i.test(value)) return false;
     return decisionTerms;
   }
@@ -1253,8 +1256,8 @@
     if (asksOrganizerVsParticipant && assumesOrganizer) {
       out.push("I assume the deck is mainly for organizing/running the hackathon, rather than preparing a participant team or onboarding attendees.");
     }
-    if (/audience|public|destin/i.test(qText) && brief?.audience && !/^À confirmer/i.test(String(brief.audience))) {
-      out.push("Je suppose que le public principal est : " + String(brief.audience).trim() + ".");
+    if (/audience|public|destin/i.test(qText) && brief?.audience && !/^À confirmer|^To be confirmed/i.test(String(brief.audience))) {
+      out.push("I assume the primary audience is: " + String(brief.audience).trim() + ".");
     }
     return out;
   }
@@ -1367,7 +1370,7 @@
       text.textContent = status.label + pct;
     }
     if (reason) {
-      const alreadyStopped = /arrêt/i.test(state?.statusReason || "");
+      const alreadyStopped = /arrêt|stopp/i.test(state?.statusReason || "");
       const suffix = state?.stopped && !alreadyStopped ? " Generation stopped: you can regenerate or add a correction." : "";
       reason.textContent = (state?.statusReason || status.fallbackReason) + suffix;
     }
@@ -1488,7 +1491,7 @@
     }
     const selectionIssues = collectPlannerSelectionIssues(slideCount, document.getElementById("uniqueLayoutsPerDeck")?.checked === true);
     if (selectionIssues.errors.length) {
-      alert("Sélection de layouts incompatible :\n" + selectionIssues.errors.join("\n"));
+      alert("Incompatible layout selection:\n" + selectionIssues.errors.join("\n"));
       if (window.__switchTab) window.__switchTab("gallery");
       return;
     }
@@ -2440,12 +2443,12 @@
       systemPrompt: PPT_DECK_PLANNER_SYSTEM,
       userPrompt: initialUser,
     });
-    log("info", `Budget contexte planner : ~${assessment.promptTokens}/${assessment.promptLimit} tokens (reserve reponse ${assessment.responseReserve}).`);
+    log("info", `Planner context budget: ~${assessment.promptTokens}/${assessment.promptLimit} tokens (response reserve ${assessment.responseReserve}).`);
     if (!assessment.needsCompression) {
       return { user: initialUser, plannerInput, compressed: false, assessment };
     }
 
-    log("warn", `Contexte planner volumineux (~${assessment.promptTokens} tokens) : compression automatique avant generation.`);
+    log("warn", `Large planner context (~${assessment.promptTokens} tokens): automatic compression before generation.`);
     const compressionRequest = contextTools.buildCompressionRequest(plannerInput, assessment);
     const compressionUser = JSON.stringify(compressionRequest, null, 2);
     try {
@@ -2456,7 +2459,7 @@
         user: compressionUser,
         baseOpts: { temperature: 0.1, timeoutMs: 120_000 },
         abort,
-        workTitle: "Compression du contexte",
+        workTitle: "Context compression",
       });
       const compressedInput = contextTools.buildCompressedPlannerInput(plannerInput, r.data);
       const compressedUser = JSON.stringify(compressedInput, null, 2);
@@ -2465,7 +2468,7 @@
         systemPrompt: PPT_DECK_PLANNER_SYSTEM,
         userPrompt: compressedUser,
       });
-      log("ok", `Contexte compresse : ~${postCompressionAssessment.promptTokens}/${postCompressionAssessment.promptLimit} tokens pour le planner.`);
+      log("ok", `Context compressed: ~${postCompressionAssessment.promptTokens}/${postCompressionAssessment.promptLimit} tokens for the planner.`);
       return {
         user: compressedUser,
         plannerInput: compressedInput,
@@ -2474,7 +2477,7 @@
         postCompressionAssessment,
       };
     } catch (error) {
-      throw new Error("Compression du contexte echouee : " + error.message);
+      throw new Error("Context compression failed: " + error.message);
     }
   }
 
@@ -3733,8 +3736,8 @@
   // Minimal fallback display for pasted/imported plans without a synth display.
   function buildDisplayFromPlan(plan) {
     const rows = plan.map((s, i) => {
-      const contenu = summarizeSpec(s);
-      return `| ${i + 1} | ${s.layout} | ${(s.title || "").slice(0, 40)} | ${contenu} |`;
+      const content = summarizeSpec(s);
+      return `| ${i + 1} | ${s.layout} | ${(s.title || "").slice(0, 40)} | ${content} |`;
     }).join("\n");
     return `**Loaded plan — ${plan.length} slides**\n\n`
       + `| # | Layout | Title | Content |\n`

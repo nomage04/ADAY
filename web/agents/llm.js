@@ -130,7 +130,7 @@ async function llmJson(cfg, systemPrompt, userPrompt, options = {}) {
   if (externalSignal) {
     if (externalSignal.aborted) {
       clearTimeout(abortTimer);
-      throw new Error("Agent arrêté par l'utilisateur avant envoi.");
+      throw new Error("Agent stopped by the user before sending.");
     }
     onExternalAbort = () => {
       externalAborted = true;
@@ -285,13 +285,13 @@ async function llmJson(cfg, systemPrompt, userPrompt, options = {}) {
   } catch (error) {
     if (error?.name === "AbortError" || abortCtrl.signal.aborted) {
       if (externalAborted) {
-        throw _attachLlmPartial(new Error("Agent arrêté par l'utilisateur."), {
+        throw _attachLlmPartial(new Error("Agent stopped by the user."), {
           raw: fullContent,
           reasoning: fullReasoning,
           usedSource: "interrupted",
         });
       }
-      throw _attachLlmPartial(new Error(`Timeout (${timeoutMs / 1000}s) : le provider n'a pas répondu.`), {
+      throw _attachLlmPartial(new Error(`Timeout (${timeoutMs / 1000}s): the provider did not respond.`), {
         raw: fullContent,
         reasoning: fullReasoning,
         usedSource: "interrupted",

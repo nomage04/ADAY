@@ -118,10 +118,10 @@ function shouldRetryVisionWithoutJson(error) {
 async function callVisionAgent(cfg, imageDataUrl, onLog) {
   const emit = (level, msg, detail) => { if (onLog) onLog(level, msg, detail); };
 
-  emit("step", "Vision : downscale de l'image si nécessaire");
+  emit("step", "Vision: downscaling the image if needed");
   const resized = await downscaleImage(imageDataUrl, 1024);
   emit("info",
-    `Image prête : ~${Math.round(resized.length * 0.75 / 1024)} KB base64 ` +
+    `Image ready: ~${Math.round(resized.length * 0.75 / 1024)} KB base64 ` +
     `(${resized.length} chars data URL)`);
 
   const userContent = [
@@ -141,14 +141,14 @@ async function callVisionAgent(cfg, imageDataUrl, onLog) {
   try {
     const result = await llmJson(cfg, PPT_VISION_SYSTEM, userContent,
       { ...baseOpts, useJsonMode: true });
-    emit("ok", `Vision : réponse reçue (JSON mode)`, result.data);
+    emit("ok", `Vision: response received (JSON mode)`, result.data);
     return result.data;
   } catch (eJson) {
     if (!shouldRetryVisionWithoutJson(eJson)) throw attachVisionDiagnostic(eJson);
-    emit("warn", `Vision : json_object rejeté (${eJson.message.slice(0, 120)}) — retry en texte libre`);
+    emit("warn", `Vision: json_object rejected (${eJson.message.slice(0, 120)}) — retrying as free text`);
     const result = await llmJson(cfg, PPT_VISION_SYSTEM, userContent,
       { ...baseOpts, useJsonMode: false });
-    emit("ok", `Vision : réponse reçue (plain text mode)`, result.data);
+    emit("ok", `Vision: response received (plain text mode)`, result.data);
     return result.data;
   }
 }

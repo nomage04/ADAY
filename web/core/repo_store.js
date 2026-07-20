@@ -108,7 +108,7 @@
       method: "PUT", body: JSON.stringify(normalized),
     });
     const confirmed = normalizeCollection(collection, [saved])[0];
-    if (!confirmed) throw new Error("Réponse serveur invalide");
+    if (!confirmed) throw new Error("Invalid server response");
     const next = state[collection].filter(item => item.id !== confirmed.id);
     next.push(confirmed);
     state[collection] = next;
@@ -187,7 +187,7 @@
       add("history", {
         id: `legacy-${Date.now().toString(36)}`,
         savedAt: lastPlan.savedAt || "migrated",
-        topic: "(plan migré)", slideCount: lastPlan.plan.length,
+        topic: "(migrated plan)", slideCount: lastPlan.plan.length,
         plan: lastPlan.plan, display: lastPlan.display || "", warnings: lastPlan.warnings || [],
       }, "pptgen.lastPlan");
     }
@@ -196,14 +196,14 @@
       new Set(state[collection].map(entry => entry.id))]));
     const collisions = candidates.filter(item => existing.get(item.collection).has(item.entry.id));
     const replace = !collisions.length || confirmReplace(
-      `${collisions.length} donnée(s) du navigateur existent déjà dans le repo. Les remplacer ?`,
+      `${collisions.length} browser item(s) already exist in the repo. Replace them?`,
     );
 
     const migratedByArray = new Map();
     for (const item of candidates) {
       const exists = existing.get(item.collection).has(item.entry.id);
       if (exists && !replace) {
-        report.ignored.push(`${item.collection}:${item.entry.id} (remplacement refusé)`);
+        report.ignored.push(`${item.collection}:${item.entry.id} (replacement declined)`);
         continue;
       }
       try {

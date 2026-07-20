@@ -41,13 +41,13 @@
       }
       if (schema.pattern) {
         try { if (!(new RegExp(schema.pattern)).test(value)) errors.push(`${path}: format invalide`); }
-        catch { errors.push(`${path}: pattern de schéma invalide`); }
+        catch { errors.push(`${path}: invalid schema pattern`); }
       }
     }
-    if (schema.enum && !schema.enum.includes(value)) errors.push(`${path}: valeur non autorisée`);
+    if (schema.enum && !schema.enum.includes(value)) errors.push(`${path}: value not allowed`);
     if (Array.isArray(value)) {
-      if (schema.minItems !== undefined && value.length < schema.minItems) errors.push(`${path}: au moins ${schema.minItems} élément(s)`);
-      if (schema.maxItems !== undefined && value.length > schema.maxItems) errors.push(`${path}: au plus ${schema.maxItems} élément(s)`);
+      if (schema.minItems !== undefined && value.length < schema.minItems) errors.push(`${path}: at least ${schema.minItems} item(s)`);
+      if (schema.maxItems !== undefined && value.length > schema.maxItems) errors.push(`${path}: at most ${schema.maxItems} item(s)`);
       if (schema.items) value.forEach((item, index) => validateValue(item, schema.items, `${path}[${index}]`, errors));
     }
     if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -93,7 +93,7 @@
       } else if (zone.type === "bullets") {
         if (!Array.isArray(value) || value.some(item => typeof item !== "string")) errors.push(`${zonePath}: tableau de textes attendu`);
       } else if (zone.type === "image") {
-        if (typeof value !== "string" || !/^photo:[A-Za-z0-9_-]+$/.test(value)) errors.push(`${zonePath}: référence photo:<id> attendue`);
+        if (typeof value !== "string" || !/^photo:[A-Za-z0-9_-]+$/.test(value)) errors.push(`${zonePath}: expected photo:<id> reference`);
       } else if (typeof value !== "string" && typeof value !== "number") {
         errors.push(`${zonePath}: texte attendu`);
       }
@@ -152,10 +152,10 @@
     };
 
     if (!enabledLayouts.some(layout => roleCheck(layout, "title"))) {
-      errors.push("sélection: aucun layout structurel title actif");
+      errors.push("selection: no active structural title layout");
     }
     if (!enabledLayouts.some(layout => roleCheck(layout, "closing"))) {
-      errors.push("sélection: aucun layout structurel closing actif");
+      errors.push("selection: no active structural closing layout");
     }
 
     const contentSlides = Math.max(0, expectedSlideCount - 2);
@@ -170,8 +170,8 @@
       }
     }
     if (contentLayouts.length < requiredContentLayouts) {
-      const prefix = uniqueLayoutsPerDeck ? "sélection: mode layout unique" : "sélection";
-      errors.push(`${prefix}: ${requiredContentLayouts} layouts de contenu distincts requis pour ${expectedSlideCount} slides, ${contentLayouts.length} actif(s)`);
+      const prefix = uniqueLayoutsPerDeck ? "selection: unique layout mode" : "selection";
+      errors.push(`${prefix}: ${requiredContentLayouts} distinct content layouts required for ${expectedSlideCount} slides, ${contentLayouts.length} active`);
     }
     return { errors, warnings, contentLayoutCount: contentLayouts.length, requiredContentLayouts };
   }
@@ -180,9 +180,9 @@
     const errors = [];
     const warnings = [];
     if (!Array.isArray(plan)) return { errors: ["plan: tableau attendu"], warnings };
-    if (plan.length < 4) errors.push(`plan: au moins 4 slides requises (reçu ${plan.length})`);
+    if (plan.length < 4) errors.push(`plan: at least 4 slides required (got ${plan.length})`);
     if (Number.isInteger(context.expectedSlideCount) && plan.length !== context.expectedSlideCount) {
-      errors.push(`plan: ${context.expectedSlideCount} slides attendues, ${plan.length} reçues`);
+      errors.push(`plan: expected ${context.expectedSlideCount} slides, got ${plan.length}`);
     }
     const enabledLayouts = context.enabledLayouts || (typeof global.LayoutSelection !== "undefined" ? global.LayoutSelection : null);
     const enabledIcons = context.enabledIcons || (typeof global.IconSelection !== "undefined" ? global.IconSelection : null);
@@ -209,7 +209,7 @@
         continue;
       }
       if (enabledLayouts && !enabledLayouts.has?.(spec.layout) && !Array.from(enabledLayouts).includes(spec.layout)) {
-        errors.push(`${path}.layout: layout désactivé « ${spec.layout} »`);
+        errors.push(`${path}.layout: disabled layout "${spec.layout}"`);
       }
       validateSlideMetadata(spec, path, errors);
       if (spec.layout.startsWith("custom:") || definition.renderer?.type === "custom") {
@@ -221,7 +221,7 @@
         validateValue(payload, definition.schema, path, errors);
         if (spec.layout === "chart_bar" && Array.isArray(spec.categories) && Array.isArray(spec.values)
             && spec.categories.length !== spec.values.length) {
-          errors.push(`${path}: categories et values doivent avoir la même longueur`);
+          errors.push(`${path}: categories and values must have the same length`);
         }
       }
       collectIconRefs(spec, iconRefs);
@@ -231,20 +231,20 @@
       const layoutCounts = {};
       for (const spec of plan) if (spec?.layout) layoutCounts[spec.layout] = (layoutCounts[spec.layout] || 0) + 1;
       for (const [layout, count] of Object.entries(layoutCounts)) {
-        if (count > 1) errors.push(`layout_unique_repetition: layout « ${layout} » utilisé ${count} fois`);
+        if (count > 1) errors.push(`layout_unique_repetition: layout "${layout}" used ${count} times`);
       }
     }
 
     if (enabledIcons) {
       for (const icon of iconRefs) {
-        if (!enabledIcons.has?.(icon) && !Array.from(enabledIcons).includes(icon)) warnings.push(`icône désactivée « ${icon} »`);
+        if (!enabledIcons.has?.(icon) && !Array.from(enabledIcons).includes(icon)) warnings.push(`disabled icon "${icon}"`);
       }
     }
     const photoRefs = new Set();
     collectPhotoRefs(plan, photoRefs);
     for (const id of context.requiredPhotoIds || []) {
       const ref = String(id).startsWith("photo:") ? String(id) : `photo:${id}`;
-      if (!photoRefs.has(ref)) errors.push(`photo obligatoire inutilisée « ${ref} »`);
+      if (!photoRefs.has(ref)) errors.push(`required photo unused "${ref}"`);
     }
 
     const content = plan.slice(1, -1).filter(Boolean);
@@ -257,7 +257,7 @@
     }
     if (content.length >= 5 && Object.keys(counts).length < MIN_DISTINCT_LAYOUTS) errors.push(`layout_monotony: au moins ${MIN_DISTINCT_LAYOUTS} layouts distincts requis`);
     for (let index = 1; index < content.length; index++) {
-      if (content[index].layout === content[index - 1].layout) errors.push(`slides ${index + 1} et ${index + 2}: layouts consécutifs identiques`);
+      if (content[index].layout === content[index - 1].layout) errors.push(`slides ${index + 1} and ${index + 2}: identical consecutive layouts`);
     }
     return { errors, warnings };
   }

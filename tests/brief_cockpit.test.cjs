@@ -26,7 +26,7 @@ test("brief chat prompt exposes context status and interaction types", () => {
   assert.match(prompt, /Do not duplicate .*open_questions.*recommended_assumptions.*reply/);
   assert.match(prompt, /resolves all open questions/);
   assert.match(prompt, /ready to start/);
-  assert.match(prompt, /Je suppose que .*plutôt que/);
+  assert.match(prompt, /I assume .*rather than/);
   for (const type of ["initial", "explain", "revise", "force_validate"]) {
     assert.match(prompt, new RegExp(type));
   }

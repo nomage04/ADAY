@@ -23,12 +23,12 @@ const PPTX_MAX_MEDIA_BYTES = 25 * 1024 * 1024;
 function _consumePptxBudget(zip, path, bytes, entryLimit) {
   const budget = zip.__pptgenBudget;
   if (!budget) return;
-  if (bytes > entryLimit) throw new Error(`${path} dépasse la limite de ${Math.round(entryLimit / 1024 / 1024)} Mo`);
+  if (bytes > entryLimit) throw new Error(`${path} exceeds the ${Math.round(entryLimit / 1024 / 1024)} MB limit`);
   if (budget.entries.has(path)) return;
   budget.entries.set(path, bytes);
   budget.expandedBytes += bytes;
   if (budget.expandedBytes > PPTX_MAX_EXPANDED_BYTES) {
-    throw new Error("PPTX refusé : contenu décompressé cumulé > 250 Mo");
+    throw new Error("PPTX rejected: cumulative uncompressed content > 250 MB");
   }
 }
 
@@ -39,18 +39,18 @@ function _consumePptxBudget(zip, path, bytes, entryLimit) {
 async function parsePptxFile(file) {
   if (typeof JSZip === "undefined") throw new Error("JSZip non chargé (lib/jszip.min.js manquant ?)");
   if (Number.isFinite(file?.size) && file.size > PPTX_MAX_FILE_BYTES) {
-    throw new Error("PPTX refusé : fichier compressé > 50 Mo");
+    throw new Error("PPTX rejected: compressed file > 50 MB");
   }
   const zip = await JSZip.loadAsync(file);
   const entryNames = Object.keys(zip.files);
-  if (entryNames.length > PPTX_MAX_ENTRIES) throw new Error(`PPTX refusé : plus de ${PPTX_MAX_ENTRIES} entrées ZIP`);
+  if (entryNames.length > PPTX_MAX_ENTRIES) throw new Error(`PPTX rejected: more than ${PPTX_MAX_ENTRIES} ZIP entries`);
   Object.defineProperty(zip, "__pptgenBudget", {
     value: { expandedBytes: 0, entries: new Map() }, configurable: true,
   });
   const slidePaths = entryNames
     .filter(path => /^ppt\/slides\/slide\d+\.xml$/.test(path))
     .sort((a, b) => _extractIndex(a) - _extractIndex(b));
-  if (slidePaths.length > PPTX_MAX_SLIDES) throw new Error(`PPTX refusé : plus de ${PPTX_MAX_SLIDES} slides`);
+  if (slidePaths.length > PPTX_MAX_SLIDES) throw new Error(`PPTX rejected: more than ${PPTX_MAX_SLIDES} slides`);
 
   // Slide canvas size (default 16:9 standard)
   const presXml = await _readXmlFromZip(zip, "ppt/presentation.xml");
@@ -207,8 +207,8 @@ async function _loadAllMedia(zip) {
                  : "application/octet-stream";
       map[name] = `data:${mime};base64,${blob}`;
     } catch (error) {
-      if (/limite|décompressé|PPTX refusé/i.test(error?.message || "")) throw error;
-      console.warn(`Média PPTX illisible ignoré : ${name}`);
+      if (/limit|PPTX rejected/i.test(error?.message || "")) throw error;
+      console.warn(`Unreadable PPTX media skipped: ${name}`);
     }
   }
   return map;

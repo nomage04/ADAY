@@ -118,11 +118,11 @@ function layoutCustom(slide, spec, pres = {}) {
     if (text == null && zone.label === "cta"      && spec.cta)      text = spec.cta;
     // Hard fallback: any zone the LLM didn't fill still gets SOMETHING
     // drawn so the slide never ships a blank hole. The user explicitly
-    // asked for this: "si c'est vide il faut écrire quelque chose".
+    // asked for this: empty zones must still show placeholder text.
     if (text == null || text === "") {
       if (zone.type === "image") continue;          // skip image fallback
-      if (zone.type === "bullets") text = ["À définir"];
-      else                          text = "À définir";
+      if (zone.type === "bullets") text = ["To be defined"];
+      else                          text = "To be defined";
     }
 
     const x = (zone.x_pct / 100) * SLIDE_W;

@@ -92,8 +92,8 @@ function repairCustomSlideZones(spec, definition) {
     }
     const mapped = takeToken(zone);
     if (mapped !== undefined) zones[zone.label] = mapped;
-    else if (zone.type === "bullets") zones[zone.label] = ["À définir"];
-    else if (zone.type !== "image") zones[zone.label] = "À définir";
+    else if (zone.type === "bullets") zones[zone.label] = ["To be defined"];
+    else if (zone.type !== "image") zones[zone.label] = "To be defined";
   }
   return { ...spec, zones };
 }
@@ -122,7 +122,7 @@ function repairPlan(plan) {
   if (first) {
     const titleCustom = pickStructural("title");
     if (titleCustom) {
-      const title    = first.title    || first.heading    || "Présentation";
+      const title    = first.title    || first.heading    || "Presentation";
       const subtitle = first.subtitle || "";
       plan[0] = {
         layout: "custom:" + titleCustom.id,
@@ -136,7 +136,7 @@ function repairPlan(plan) {
       const subtitle = first.subtitle || "";
       if (first.layout !== titleAsset.id) plan[0] = { layout: titleAsset.id, title, subtitle };
     } else if (first.layout !== "title") {
-      const title    = first.title    || first.heading || "Présentation";
+      const title    = first.title    || first.heading || "Presentation";
       const subtitle = first.subtitle || "";
       plan[0] = { layout: "title", title, subtitle };
     }
@@ -148,7 +148,7 @@ function repairPlan(plan) {
   if (last) {
     const closingCustom = pickStructural("closing");
     if (closingCustom) {
-      const title   = last.title   || "Merci";
+      const title   = last.title   || "Thank you";
       const message = last.message || last.subtitle || "";
       plan[lastIdx] = {
         layout: "custom:" + closingCustom.id,
@@ -159,7 +159,7 @@ function repairPlan(plan) {
       };
     } else if (typeof pickActiveStructuralAsset === "function" && pickActiveStructuralAsset("closing")) {
       const closingAsset = pickActiveStructuralAsset("closing");
-      const title   = last.title   || "Merci";
+      const title   = last.title   || "Thank you";
       const message = last.message || last.subtitle || "";
       if (last.layout !== closingAsset.id) {
         const out = { layout: closingAsset.id, title };
@@ -168,7 +168,7 @@ function repairPlan(plan) {
         plan[lastIdx] = out;
       }
     } else if (last.layout !== "closing") {
-      const title   = last.title   || "Merci";
+      const title   = last.title   || "Thank you";
       const message = last.message || last.subtitle || "";
       const out = { layout: "closing", title };
       if (message) out.message = message;

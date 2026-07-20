@@ -5,10 +5,10 @@ function layoutSwot(slide, spec) {
   renderHeader(slide, spec.title);
 
   const data = [
-    ["Forces",         THEME.CAT_GREEN,      spec.strengths     || []],
-    ["Faiblesses",     THEME.CAT_ORANGE,     spec.weaknesses    || []],
-    ["Opportunités",   THEME.CAT_DARK_GREEN, spec.opportunities || []],
-    ["Menaces",        THEME.CAT_RED,        spec.threats       || []],
+    ["Strengths",      THEME.CAT_GREEN,      spec.strengths     || []],
+    ["Weaknesses",     THEME.CAT_ORANGE,     spec.weaknesses    || []],
+    ["Opportunities",  THEME.CAT_DARK_GREEN, spec.opportunities || []],
+    ["Threats",        THEME.CAT_RED,        spec.threats       || []],
   ];
   const cells = [[0.7, 2.0], [6.85, 2.0], [0.7, 4.4], [6.85, 4.4]];
 

@@ -30,10 +30,10 @@ Return ONE JSON object:
   "plan": [
     { "layout": "title", "title": "...", "subtitle": "..." },
     { "layout": "two_col", "title": "...", "left_title": "...", "left_bullets": ["..."], "right_title": "...", "right_bullets": ["..."] },
-    { "layout": "closing", "title": "Merci", "message": "..." }
+    { "layout": "closing", "title": "Thank you", "message": "..." }
   ],
   "warnings": [],
-  "display": "**Plan proposé — N slides**\\\\n\\\\n| # | Layout | Titre | Contenu |\\\\n|---|--------|-------|---------|\\\\n| 1 | title | ... | ... |"
+  "display": "**Proposed plan — N slides**\\\\n\\\\n| # | Layout | Title | Content |\\\\n|---|--------|-------|---------|\\\\n| 1 | title | ... | ... |"
 }
 \`\`\`
 
@@ -53,6 +53,7 @@ No prose, no markdown fences around the JSON.
 - For decks with at least 5 content slides, use at least 3 distinct content layouts.
 - Do not emit two consecutive content slides with the same layout.
 - Keep text concise enough to fit slides: short titles, 2-5 bullets, 2-4 cards, 2-4 stats, 3-5 timeline steps.
+- Write all slide text in the same language as the brief.
 - Follow the selected \`tone.instruction\` throughout the deck. Do not name the tone on every slide unless it is naturally relevant; make the writing style embody it.
 - Maintain visual consistency across the whole deck. Use the visual style summaries in \`layouts_catalog\` to avoid mixing radically different custom palettes or fonts. Prefer a coherent dominant palette and typography; when one useful custom layout is visually off-palette, choose neighboring layouts/content that make it feel intentional rather than random.
 
@@ -79,7 +80,7 @@ For any layout whose catalog entry lists zones, follow the catalog exactly:
 - Use shape \`{ "layout": "<id>", "title": "...", "zones": { ... } }\`.
 - Fill every listed zone key.
 - If there is not enough real content for every zone, prefer a standard layout.
-- If you must keep the custom layout, fill missing zones with "A definir" and add a warning.
+- If you must keep the custom layout, fill missing zones with "To be defined" and add a warning.
 
 ## Photos
 
@@ -89,13 +90,13 @@ If \`user_photos\` is present, every listed \`photo:<id>\` MUST appear as an \`i
 
 \`display\` is a concise markdown table for humans:
 
-**Plan proposé — <N> slides**
+**Proposed plan — <N> slides**
 
-| # | Layout | Titre | Contenu |
+| # | Layout | Title | Content |
 |---|--------|-------|---------|
 | 1 | title | ... | ... |
 
-The Contenu column must be a short phrase, never raw JSON.`;
+The Content column must be a short phrase, never raw JSON.`;
 
 const PPT_DECK_PLANNER_RESUME_SYSTEM = PPT_DECK_PLANNER_SYSTEM + `
 

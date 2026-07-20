@@ -4,7 +4,7 @@ function layoutClosing(slide, spec) {
   paintBg(slide, THEME.PRIMARY);
   const cx = SLIDE_W / 2;
   const w = SLIDE_W - 2.4;
-  addTextbox(slide, spec.title || "Merci", 1.2, 2.2, w, 1.2, {
+  addTextbox(slide, spec.title || "Thank you", 1.2, 2.2, w, 1.2, {
     fontSize: 48, color: THEME.WHITE, bold: true, align: "center",
   });
   addRule(slide, cx - 0.75, 3.7, 1.5, THEME.ACCENT, 0.06);

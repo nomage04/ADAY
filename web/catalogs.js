@@ -241,15 +241,15 @@ const LOGOS_CATALOG = buildLogoCatalogMarkdown(assetLogoIds());
 
 function _assetPackProblems() {
   const problems = [];
-  if (!window.PPT_ASSET_PACK) problems.push("asset_pack.generated.js est absent");
-  if (ASSET_PACK.version < 2) problems.push("version de pack incompatible");
-  if (assetLayoutIds().length === 0) problems.push("aucun layout intégré");
-  if (assetIconIds().length === 0) problems.push("aucune icône intégrée");
-  if (assetLogoIds().length === 0) problems.push("aucun logo intégré");
+  if (!window.PPT_ASSET_PACK) problems.push("asset_pack.generated.js is missing");
+  if (ASSET_PACK.version < 2) problems.push("incompatible pack version");
+  if (assetLayoutIds().length === 0) problems.push("no built-in layouts");
+  if (assetIconIds().length === 0) problems.push("no built-in icons");
+  if (assetLogoIds().length === 0) problems.push("no built-in logos");
   for (const id of assetLayoutIds()) {
     const meta = getAssetLayoutMeta(id);
     if (meta?.renderer?.type === "registered" && meta.renderer.name !== id) {
-      problems.push(`renderer invalide pour ${id}`);
+      problems.push(`invalid renderer for ${id}`);
     }
   }
   return problems;
@@ -260,11 +260,11 @@ function showAssetPackFatal(problems) {
   panel.className = "asset-pack-fatal";
   panel.setAttribute("role", "alert");
   const title = document.createElement("h1");
-  title.textContent = "Pack d’assets indisponible";
+  title.textContent = "Asset pack unavailable";
   const details = document.createElement("p");
   details.textContent = problems.join(" · ");
   const help = document.createElement("p");
-  help.textContent = "Régénérez le pack avec npm run build:assets puis rechargez index.html.";
+  help.textContent = "Regenerate the pack with npm run build:assets, then reload index.html.";
   panel.append(title, details, help);
   document.body.replaceChildren(panel);
 }

@@ -53,9 +53,9 @@ test("validates exact slide count and enabled layouts", () => {
   const { contracts, pack } = bootContracts();
   const plan = validPlan();
   assert.deepEqual(Array.from(contracts.collectPlanIssues(plan, { expectedSlideCount: 4 }).errors), []);
-  assert.throws(() => contracts.validatePlan(plan, { expectedSlideCount: 5 }), /5 slides attendues/);
+  assert.throws(() => contracts.validatePlan(plan, { expectedSlideCount: 5 }), /expected 5 slides/);
   const enabled = new Set(pack.layoutOrder.filter(id => id !== "quote"));
-  assert.throws(() => contracts.validatePlan(plan, { enabledLayouts: enabled }), /layout désactivé/);
+  assert.throws(() => contracts.validatePlan(plan, { enabledLayouts: enabled }), /disabled layout/);
 });
 
 test("catches impossible custom-only layout selections before planning", () => {
@@ -77,7 +77,7 @@ test("catches impossible custom-only layout selections before planning", () => {
     expectedSlideCount: 8,
     enabledLayouts: new Set(["custom:cover", "custom:end", "custom:body"]),
   });
-  assert.match(issues.errors.join("\n"), /3 layouts de contenu distincts requis/);
+  assert.match(issues.errors.join("\n"), /3 distinct content layouts required/);
   assert.equal(issues.contentLayoutCount, 1);
   assert.equal(issues.requiredContentLayouts, 3);
 });
@@ -116,7 +116,7 @@ test("enforces layout schemas and required photo usage", () => {
   const photoPlan = validPlan();
   photoPlan[1] = { layout: "photo_hero", title: "Photo", image: "photo:p1" };
   assert.doesNotThrow(() => contracts.validatePlan(photoPlan, { requiredPhotoIds: ["p1"] }));
-  assert.throws(() => contracts.validatePlan(photoPlan, { requiredPhotoIds: ["p2"] }), /photo obligatoire inutilisée/);
+  assert.throws(() => contracts.validatePlan(photoPlan, { requiredPhotoIds: ["p2"] }), /required photo unused/);
 
   const legacyFooterPlan = validPlan();
   legacyFooterPlan[1].breadcrumb = "Legacy footer";
@@ -142,7 +142,7 @@ test("validates unique layout mode before and after planning", () => {
     enabledLayouts: new Set(["title", "closing", ...contentLayouts]),
     uniqueLayoutsPerDeck: true,
   });
-  assert.match(issues.errors.join("\n"), /mode layout unique/);
+  assert.match(issues.errors.join("\n"), /unique layout mode/);
 
   const duplicated = [
     { layout: "title", title: "Quarterly review", subtitle: "June" },
