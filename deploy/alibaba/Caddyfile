@@ -8,25 +8,26 @@
 		X-Robots-Tag "noindex"
 	}
 
-	# Accès protégé par identifiant/mot de passe (basic auth). Le chemin
-	# /v1/* est exclu : l'application y envoie son propre en-tête
-	# « Authorization: Bearer <jeton> » (incompatible avec Basic) et ce
-	# chemin est déjà gardé par le jeton de proxy côté backend.
+	# Login/password protection (basic auth). The /v1/* path is excluded:
+	# the app sends its own "Authorization: Bearer <token>" header there
+	# (incompatible with Basic), and that path is already guarded by the
+	# proxy token on the backend side.
 	@ui not path /v1/*
 	basic_auth @ui {
 		{$ADAY_BASIC_USER} {$ADAY_BASIC_HASH}
+		{$ADAY_JUDGE_USER} {$ADAY_JUDGE_HASH}
 	}
 
-	# Le backend n'accepte que Host 127.0.0.1:8000 et, pour /api/* et /v1/*,
-	# une Origin du même host. La passerelle réécrit les deux — mais l'Origin
-	# n'est réécrite QUE si le navigateur a envoyé l'origin de ce site ;
-	# toute autre Origin est supprimée (les requêtes cross-site restent
-	# rejetées par le backend).
+	# The backend only accepts Host 127.0.0.1:8000 and, for /api/* and
+	# /v1/*, an Origin from the same host. The gateway rewrites both — but
+	# the Origin is rewritten ONLY when the browser sent this site's
+	# origin; any other Origin is stripped (cross-site requests are still
+	# rejected by the backend).
 	@sameOrigin header Origin https://{$ADAY_PUBLIC_HOST}
 	reverse_proxy @sameOrigin 127.0.0.1:8000 {
 		header_up Host "127.0.0.1:8000"
 		header_up Origin "http://127.0.0.1:8000"
-		# Réponses LLM en flux (le proxy /v1 streame les completions).
+		# Streaming LLM responses (the /v1 proxy streams completions).
 		flush_interval -1
 	}
 	reverse_proxy 127.0.0.1:8000 {

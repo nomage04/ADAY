@@ -41,6 +41,8 @@ services:
       ADAY_PUBLIC_HOST: ${ADAY_PUBLIC_HOST}
       ADAY_BASIC_USER: ${ADAY_BASIC_USER}
       ADAY_BASIC_HASH: ${ADAY_BASIC_HASH}
+      ADAY_JUDGE_USER: ${ADAY_JUDGE_USER:-judge}
+      ADAY_JUDGE_HASH: ${ADAY_JUDGE_HASH:-${ADAY_BASIC_HASH}}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
