@@ -34,6 +34,12 @@ MAX_STORE_BYTES = CONSTRAINTS["maxStoreBytes"]
 MAX_IMAGE_SIDE = CONSTRAINTS["maxImageSide"]
 MAX_IMAGE_PIXELS = CONSTRAINTS["maxImagePixels"]
 LLM_BASE = os.getenv("LLM_BASE", "http://localhost:8080").rstrip("/")
+# Déploiement cloud : si PPTGEN_LLM_API_KEY est définie, le proxy /v1/*
+# remplace l'Authorization entrante par cette clé — elle ne quitte jamais le
+# serveur. PPTGEN_PROXY_TOKEN (optionnel) exige alors que le navigateur
+# présente ce jeton (champ « API Key » de l'UI) pour utiliser le proxy.
+LLM_API_KEY = os.getenv("PPTGEN_LLM_API_KEY", "")
+PROXY_TOKEN = os.getenv("PPTGEN_PROXY_TOKEN", "")
 
 COLLECTIONS = {
     "layouts": "layouts",
@@ -688,7 +694,11 @@ async def proxy(path: str, request: Request):
         "accept": request.headers.get("accept", "application/json"),
     }
     authorization = request.headers.get("authorization")
-    if authorization:
+    if LLM_API_KEY:
+        if PROXY_TOKEN and authorization != f"Bearer {PROXY_TOKEN}":
+            raise HTTPException(401, "jeton de proxy invalide")
+        headers["authorization"] = f"Bearer {LLM_API_KEY}"
+    elif authorization:
         headers["authorization"] = authorization
     upstream_request = app.state.client.build_request(
         "POST", f"{LLM_BASE}/v1/{path}", content=content, headers=headers,

@@ -234,3 +234,65 @@ class HttpSecurityTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ProxyCredentialTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.data_patch = mock.patch.object(
+            server_module, "DATA_ROOT", Path(self.temp.name)
+        )
+        self.data_patch.start()
+        self.client = TestClient(server_module.app, base_url="http://127.0.0.1")
+
+    def tearDown(self):
+        self.data_patch.stop()
+        self.temp.cleanup()
+
+    def test_server_side_key_requires_the_proxy_token(self):
+        with mock.patch.object(server_module, "LLM_API_KEY", "sk-secret"), \
+                mock.patch.object(server_module, "PROXY_TOKEN", "demo-token"):
+            refused = self.client.post(
+                "/v1/chat/completions",
+                json={},
+                headers={"authorization": "Bearer wrong"},
+            )
+            self.assertEqual(refused.status_code, 401)
+            missing = self.client.post("/v1/chat/completions", json={})
+            self.assertEqual(missing.status_code, 401)
+
+    def test_server_side_key_replaces_the_browser_authorization(self):
+        captured = {}
+
+        class FakeUpstream:
+            status_code = 200
+            headers = {"content-type": "application/json"}
+
+            async def aiter_raw(self):
+                yield b"{}"
+
+            async def aclose(self):
+                return None
+
+        class FakeClient:
+            def build_request(self, method, url, content=None, headers=None):
+                captured["url"] = url
+                captured["headers"] = dict(headers or {})
+                return object()
+
+            async def send(self, request, stream=False):
+                return FakeUpstream()
+
+        with mock.patch.object(server_module, "LLM_API_KEY", "sk-secret"), \
+                mock.patch.object(server_module, "PROXY_TOKEN", "demo-token"), \
+                mock.patch.object(
+                    server_module.app.state, "client", FakeClient(), create=True
+                ):
+            accepted = self.client.post(
+                "/v1/chat/completions",
+                json={},
+                headers={"authorization": "Bearer demo-token"},
+            )
+            self.assertEqual(accepted.status_code, 200)
+            self.assertEqual(captured["headers"]["authorization"], "Bearer sk-secret")
+            self.assertNotIn("demo-token", str(captured["headers"]))

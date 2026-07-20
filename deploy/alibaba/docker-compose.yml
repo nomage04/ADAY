@@ -15,6 +15,10 @@ services:
       PPTGEN_DATA_DIR: /data/customs
       # Cible du proxy intégré POST /v1/* (Base URL UI = "/v1").
       LLM_BASE: ${LLM_BASE:-https://dashscope-intl.aliyuncs.com/compatible-mode}
+      # Optionnel : clé injectée côté serveur (jamais dans le navigateur),
+      # gardée par un jeton que les visiteurs saisissent comme « API Key ».
+      PPTGEN_LLM_API_KEY: ${PPTGEN_LLM_API_KEY:-}
+      PPTGEN_PROXY_TOKEN: ${PPTGEN_PROXY_TOKEN:-}
     volumes:
       - aday-v1-data:/data
     # Publiés ici car la passerelle partage cet espace réseau.
