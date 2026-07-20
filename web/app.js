@@ -2380,6 +2380,7 @@
     try {
       const r = await _raceAbort(abort, () => llmJson(cfg, system, repairUser, {
         ...baseOpts,
+        useJsonMode: false,
         onDelta: d => {
           stream2.onDelta(d);
           if (typeof onDelta === "function") onDelta(d);
@@ -2566,7 +2567,9 @@
         cfg: c,
         system: resumeDraft ? PPT_DECK_PLANNER_RESUME_SYSTEM : PPT_DECK_PLANNER_SYSTEM,
         user: promptInfo.user,
-        baseOpts: { temperature: 0.35 },
+        // Structured JSON mode collapses on some models with large custom
+        // catalogs (qwen-max emits mangled escapes); retries turn it off.
+        baseOpts: { temperature: 0.35, useJsonMode: pipelineState.plannerJsonModeOff !== true },
         abort,
         workTitle: "Deck agent is constructing...",
         onDelta: delta => updatePlannerDraftCheckpoint(draft, delta),
@@ -2745,6 +2748,17 @@
       });
       log("ok", `Plan validated: ${deck.plan.length} slides, ${new Set(deck.plan.slice(1, -1).map(s => s.layout)).size} distinct layouts`);
     } catch (e) {
+      if (!pipelineState._autoPlanRetryDone) {
+        // One automatic repair round: replay the planner with the exact
+        // validation errors fed back, and without structured JSON mode
+        // (some models produce degenerate output with it — see qwen-max).
+        pipelineState._autoPlanRetryDone = true;
+        pipelineState.plannerJsonModeOff = true;
+        restartComment = `The previous plan failed validation. Fix it and return a valid plan.\nErrors:\n${e.message}`;
+        log("warn", `Plan validation failed — auto-retrying the planner with the errors fed back: ${e.message}`);
+        await runPhaseDeckPlanner();
+        return await finalizePipeline({ source });
+      }
       log("error", `Plan validation failed: ${e.message}`, undefined, {
         action: {
           label: "Retry planner",
