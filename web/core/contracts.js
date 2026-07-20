@@ -34,10 +34,10 @@
     }
     if (typeof value === "string") {
       if (schema.minLength !== undefined && value.trim().length < schema.minLength) {
-        errors.push(`${path}: texte trop court`);
+        errors.push(`${path}: text too short`);
       }
       if (schema.maxLength !== undefined && value.length > schema.maxLength) {
-        errors.push(`${path}: texte trop long`);
+        errors.push(`${path}: text too long`);
       }
       if (schema.pattern) {
         try { if (!(new RegExp(schema.pattern)).test(value)) errors.push(`${path}: invalid format`); }
@@ -54,7 +54,7 @@
       const properties = schema.properties || {};
       for (const key of schema.required || []) {
         if (value[key] === undefined || value[key] === null || value[key] === "") {
-          errors.push(`${path}.${key}: champ obligatoire manquant`);
+          errors.push(`${path}.${key}: missing required field`);
         }
       }
       for (const [key, child] of Object.entries(properties)) {
@@ -62,7 +62,7 @@
       }
       if (schema.additionalProperties === false) {
         for (const key of Object.keys(value)) {
-          if (!Object.prototype.hasOwnProperty.call(properties, key)) errors.push(`${path}.${key}: champ inconnu`);
+          if (!Object.prototype.hasOwnProperty.call(properties, key)) errors.push(`${path}.${key}: unknown field`);
         }
       }
     }
@@ -79,9 +79,9 @@
 
   function validateCustomSlide(spec, definition, path, errors) {
     const allowed = new Set(["layout", "title", "subtitle", "message", "cta", "zones", "speakerNotes"]);
-    for (const key of Object.keys(spec)) if (!allowed.has(key)) errors.push(`${path}.${key}: champ inconnu`);
+    for (const key of Object.keys(spec)) if (!allowed.has(key)) errors.push(`${path}.${key}: unknown field`);
     if (!spec.zones || typeof spec.zones !== "object" || Array.isArray(spec.zones)) {
-      errors.push(`${path}.zones: objet obligatoire`);
+      errors.push(`${path}.zones: object required`);
       return;
     }
     const expectedLabels = new Set(definition.zones.map(zone => zone.label));
@@ -89,26 +89,26 @@
       const value = spec.zones[zone.label];
       const zonePath = `${path}.zones.${zone.label}`;
       if (value === undefined || value === null || value === "") {
-        errors.push(`${zonePath}: zone obligatoire manquante`);
+        errors.push(`${zonePath}: missing required zone`);
       } else if (zone.type === "bullets") {
-        if (!Array.isArray(value) || value.some(item => typeof item !== "string")) errors.push(`${zonePath}: tableau de textes attendu`);
+        if (!Array.isArray(value) || value.some(item => typeof item !== "string")) errors.push(`${zonePath}: expected an array of strings`);
       } else if (zone.type === "image") {
         if (typeof value !== "string" || !/^photo:[A-Za-z0-9_-]+$/.test(value)) errors.push(`${zonePath}: expected photo:<id> reference`);
       } else if (typeof value !== "string" && typeof value !== "number") {
-        errors.push(`${zonePath}: texte attendu`);
+        errors.push(`${zonePath}: expected text`);
       }
     }
-    for (const label of Object.keys(spec.zones)) if (!expectedLabels.has(label)) errors.push(`${path}.zones.${label}: zone inconnue`);
+    for (const label of Object.keys(spec.zones)) if (!expectedLabels.has(label)) errors.push(`${path}.zones.${label}: unknown zone`);
   }
 
   function validateSlideMetadata(spec, path, errors) {
     if (spec.speakerNotes === undefined) return;
     if (typeof spec.speakerNotes !== "string") {
-      errors.push(`${path}.speakerNotes: texte attendu`);
+      errors.push(`${path}.speakerNotes: expected text`);
       return;
     }
     if (spec.speakerNotes.length > MAX_SPEAKER_NOTES_LENGTH) {
-      errors.push(`${path}.speakerNotes: texte trop long`);
+      errors.push(`${path}.speakerNotes: text too long`);
     }
   }
 
@@ -179,7 +179,7 @@
   function collectPlanIssues(plan, context = {}) {
     const errors = [];
     const warnings = [];
-    if (!Array.isArray(plan)) return { errors: ["plan: tableau attendu"], warnings };
+    if (!Array.isArray(plan)) return { errors: ["plan: expected an array"], warnings };
     if (plan.length < 4) errors.push(`plan: at least 4 slides required (got ${plan.length})`);
     if (Number.isInteger(context.expectedSlideCount) && plan.length !== context.expectedSlideCount) {
       errors.push(`plan: expected ${context.expectedSlideCount} slides, got ${plan.length}`);
@@ -188,24 +188,24 @@
     const enabledIcons = context.enabledIcons || (typeof global.IconSelection !== "undefined" ? global.IconSelection : null);
     const isStructuralRole = typeof global.isStructuralRoleLayout === "function"
       ? global.isStructuralRoleLayout : (layout, role) => layout === role;
-    if (plan.length && !isStructuralRole(plan[0]?.layout, "title")) errors.push("slide 1: layout structurel title obligatoire");
-    if (plan.length && !isStructuralRole(plan[plan.length - 1]?.layout, "closing")) errors.push(`slide ${plan.length}: layout structurel closing obligatoire`);
+    if (plan.length && !isStructuralRole(plan[0]?.layout, "title")) errors.push("slide 1: structural title layout required");
+    if (plan.length && !isStructuralRole(plan[plan.length - 1]?.layout, "closing")) errors.push(`slide ${plan.length}: structural closing layout required`);
 
     const iconRefs = new Set();
     for (let index = 0; index < plan.length; index++) {
       const spec = plan[index];
       const path = `slide ${index + 1}`;
       if (!spec || typeof spec !== "object" || Array.isArray(spec)) {
-        errors.push(`${path}: objet attendu`);
+        errors.push(`${path}: expected an object`);
         continue;
       }
       if (typeof spec.layout !== "string" || !spec.layout) {
-        errors.push(`${path}.layout: champ obligatoire manquant`);
+        errors.push(`${path}.layout: missing required field`);
         continue;
       }
       const definition = layoutDefinition(spec.layout);
       if (!definition) {
-        errors.push(`${path}.layout: layout inconnu « ${spec.layout} »`);
+        errors.push(`${path}.layout: unknown layout "${spec.layout}"`);
         continue;
       }
       if (enabledLayouts && !enabledLayouts.has?.(spec.layout) && !Array.from(enabledLayouts).includes(spec.layout)) {
@@ -255,7 +255,7 @@
       const maxShare = Math.max(...Object.values(counts)) / content.length;
       if (maxShare > MAX_LAYOUT_SHARE) errors.push(`layout_repetition: part maximale ${Math.round(maxShare * 100)}%`);
     }
-    if (content.length >= 5 && Object.keys(counts).length < MIN_DISTINCT_LAYOUTS) errors.push(`layout_monotony: au moins ${MIN_DISTINCT_LAYOUTS} layouts distincts requis`);
+    if (content.length >= 5 && Object.keys(counts).length < MIN_DISTINCT_LAYOUTS) errors.push(`layout_monotony: at least ${MIN_DISTINCT_LAYOUTS} distinct layouts required`);
     for (let index = 1; index < content.length; index++) {
       if (content[index].layout === content[index - 1].layout) errors.push(`slides ${index + 1} and ${index + 2}: identical consecutive layouts`);
     }

@@ -13,7 +13,7 @@ function layoutPhotoHero(slide, spec) {
     });
   } else {
     addRect(slide, 0, 0, SLIDE_W, 5.8, THEME.CARD_BG);
-    addTextbox(slide, "[ image manquante ]", 0, 2.5, SLIDE_W, 1, {
+    addTextbox(slide, "[ missing image ]", 0, 2.5, SLIDE_W, 1, {
       fontSize: 16, color: THEME.NEUTRAL_BODY, align: "center",
     });
   }

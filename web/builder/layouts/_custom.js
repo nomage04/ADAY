@@ -160,7 +160,7 @@ function layoutCustom(slide, spec, pres = {}) {
         });
       } else {
         addRect(slide, x, y, w, h, THEME.CARD_BG);
-        addTextbox(slide, "[ photo manquante ]", x, y + h / 2 - 0.2, w, 0.4, {
+        addTextbox(slide, "[ missing photo ]", x, y + h / 2 - 0.2, w, 0.4, {
           fontSize: 12, color: THEME.NEUTRAL_BODY, align: "center",
         });
       }

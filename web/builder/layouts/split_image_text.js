@@ -14,7 +14,7 @@ function layoutSplitImageText(slide, spec) {
     });
   } else {
     addRect(slide, 0.7, 1.9, 5.8, 4.6, THEME.CARD_BG);
-    addTextbox(slide, "[ image manquante ]", 0.7, 3.9, 5.8, 0.8, {
+    addTextbox(slide, "[ missing image ]", 0.7, 3.9, 5.8, 0.8, {
       fontSize: 16, color: THEME.NEUTRAL_BODY, align: "center",
     });
   }

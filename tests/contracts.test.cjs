@@ -111,7 +111,7 @@ test("enforces layout schemas and required photo usage", () => {
   const { contracts } = bootContracts();
   const bad = validPlan();
   bad[1].unexpected = "not allowed";
-  assert.throws(() => contracts.validatePlan(bad), /champ inconnu/);
+  assert.throws(() => contracts.validatePlan(bad), /unknown field/);
 
   const photoPlan = validPlan();
   photoPlan[1] = { layout: "photo_hero", title: "Photo", image: "photo:p1" };
@@ -120,7 +120,7 @@ test("enforces layout schemas and required photo usage", () => {
 
   const legacyFooterPlan = validPlan();
   legacyFooterPlan[1].breadcrumb = "Legacy footer";
-  assert.throws(() => contracts.validatePlan(legacyFooterPlan), /champ inconnu/);
+  assert.throws(() => contracts.validatePlan(legacyFooterPlan), /unknown field/);
 });
 
 test("accepts bounded speaker notes without relaxing slide schemas", () => {
@@ -131,7 +131,7 @@ test("accepts bounded speaker notes without relaxing slide schemas", () => {
 
   const tooLong = validPlan();
   tooLong[1].speakerNotes = "x".repeat(1201);
-  assert.throws(() => contracts.validatePlan(tooLong), /speakerNotes: texte trop long/);
+  assert.throws(() => contracts.validatePlan(tooLong), /speakerNotes: text too long/);
 });
 
 test("validates unique layout mode before and after planning", () => {
