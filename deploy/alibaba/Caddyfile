@@ -1,0 +1,28 @@
+{
+	admin off
+}
+
+{$ADAY_PUBLIC_HOST} {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Robots-Tag "noindex"
+	}
+
+	# Le backend n'accepte que Host 127.0.0.1:8000 et, pour /api/* et /v1/*,
+	# une Origin du même host. La passerelle réécrit les deux — mais l'Origin
+	# n'est réécrite QUE si le navigateur a envoyé l'origin de ce site ;
+	# toute autre Origin est supprimée (les requêtes cross-site restent
+	# rejetées par le backend).
+	@sameOrigin header Origin https://{$ADAY_PUBLIC_HOST}
+	reverse_proxy @sameOrigin 127.0.0.1:8000 {
+		header_up Host "127.0.0.1:8000"
+		header_up Origin "http://127.0.0.1:8000"
+		# Réponses LLM en flux (le proxy /v1 streame les completions).
+		flush_interval -1
+	}
+	reverse_proxy 127.0.0.1:8000 {
+		header_up Host "127.0.0.1:8000"
+		header_up -Origin
+		flush_interval -1
+	}
+}

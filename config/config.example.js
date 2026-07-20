@@ -18,22 +18,27 @@
 
 window.LLM_CONFIG_DEFAULTS = {
   // Exemples :
+  //   Qwen intl : "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+  //   Qwen Chine: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  //   Proxy     : "/v1"  (backend/server.py relaie vers LLM_BASE)
   //   Groq      : "https://api.groq.com/openai/v1"
   //   OpenAI    : "https://api.openai.com/v1"
   //   OpenRouter: "https://openrouter.ai/api/v1"
   //   Ollama    : "http://localhost:11434/v1"   (avec OLLAMA_ORIGINS=*)
-  baseUrl: "https://api.groq.com/openai/v1",
+  baseUrl: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
 
   // Exemples selon le provider :
+  //   Qwen      : "qwen-plus" | "qwen-max" | "qwen-turbo" | "qwen-flash"
   //   Groq      : "openai/gpt-oss-120b" | "llama-3.3-70b-versatile"
   //   OpenAI    : "gpt-4o-mini" | "gpt-4o"
   //   OpenRouter: "openai/gpt-oss-120b:free" | "deepseek/deepseek-chat:free"
   //   Ollama    : "gpt-oss:120b" | "qwen2.5:14b"
-  model: "openai/gpt-oss-120b",
+  model: "qwen-plus",
 
   // Modèle multimodal utilisé pour analyser layouts, icônes et photos.
+  // Qwen : "qwen-vl-plus" | "qwen-vl-max".
   // Laisse vide pour utiliser `model` en fallback.
-  visionModel: "",
+  visionModel: "qwen-vl-plus",
 
   // Laisse vide ("") pour saisir la clé dans l'UI à chaque ouverture.
   // Si tu mets la clé ici, elle reste dans le fichier local (pas en

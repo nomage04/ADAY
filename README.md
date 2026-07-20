@@ -69,6 +69,32 @@ The API key remains in the current browser tab by default. If you enable **Save 
 
 For a file-based setup, copy `config/config.example.js` to `config/config.local.js` and edit the copy. `LLM_BASE` remains available for the optional local `/v1/*` proxy and defaults to `http://localhost:8080`.
 
+### Qwen (Alibaba Cloud Model Studio) — default
+
+ADAY is preconfigured for Qwen through the DashScope OpenAI-compatible API:
+
+| Field      | Value                                                       |
+| ---------- | ----------------------------------------------------------- |
+| Base URL   | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1`    |
+| Model      | `qwen-plus` (alternatives: `qwen-max`, `qwen-turbo`, `qwen-flash`) |
+| Vision     | `qwen-vl-plus` (alternative: `qwen-vl-max`)                 |
+| API key    | a Model Studio key (`sk-...`), created in the Alibaba Cloud console |
+
+Accounts on the Chinese mainland endpoint use `https://dashscope.aliyuncs.com/compatible-mode/v1` instead. The Settings fields offer these presets in their dropdowns. DashScope sends CORS headers, so the browser can call it directly; alternatively set the Base URL to `/v1` to route through the bundled server proxy (`LLM_BASE=https://dashscope-intl.aliyuncs.com/compatible-mode`).
+
+## Cloud deployment (Alibaba Cloud ECS)
+
+`deploy/alibaba/` runs the unmodified local server behind a TLS gateway:
+
+```bash
+# on the server
+cp deploy/alibaba/.env.example deploy/alibaba/.env   # set ADAY_PUBLIC_HOST
+cd deploy/alibaba
+docker compose up -d --build
+```
+
+The FastAPI app stays bound to `127.0.0.1:8000`; only Caddy is reachable, terminates TLS (Let's Encrypt) and rewrites the pinned `Host`/`Origin` headers. Runtime data persists in the `aday-v1-data` volume. API keys are never stored server side: each visitor supplies their own key in Settings (kept in the browser tab).
+
 ## Repository structure
 
 ```text

@@ -511,19 +511,41 @@
     <div class="grid">
       <label class="full">
         <span>Base URL</span>
-        <input id="baseUrl" type="text" value="https://api.openai.com/v1" autocomplete="off">
+        <input id="baseUrl" type="text" value="https://dashscope-intl.aliyuncs.com/compatible-mode/v1" list="baseUrlPresets" autocomplete="off">
+        <datalist id="baseUrlPresets">
+          <option value="https://dashscope-intl.aliyuncs.com/compatible-mode/v1">Qwen - Alibaba Cloud Model Studio (intl)</option>
+          <option value="https://dashscope.aliyuncs.com/compatible-mode/v1">Qwen - Alibaba Cloud Model Studio (Chine)</option>
+          <option value="/v1">Proxy local (backend/server.py + LLM_BASE)</option>
+          <option value="https://api.groq.com/openai/v1">Groq</option>
+          <option value="https://api.openai.com/v1">OpenAI</option>
+          <option value="https://openrouter.ai/api/v1">OpenRouter</option>
+          <option value="http://localhost:11434/v1">Ollama</option>
+        </datalist>
       </label>
       <label class="full">
         <span>Model</span>
-        <input id="model" type="text" value="gpt-4o-mini" autocomplete="off">
+        <input id="model" type="text" value="qwen-plus" list="modelPresets" autocomplete="off">
+        <datalist id="modelPresets">
+          <option value="qwen-plus">Qwen Plus - equilibre qualite/vitesse</option>
+          <option value="qwen-max">Qwen Max - qualite maximale</option>
+          <option value="qwen-turbo">Qwen Turbo - rapide et economique</option>
+          <option value="qwen-flash">Qwen Flash - tres rapide</option>
+          <option value="gpt-4o-mini">OpenAI gpt-4o-mini</option>
+          <option value="openai/gpt-oss-120b">Groq gpt-oss-120b</option>
+        </datalist>
       </label>
       <label class="full">
         <span>Vision Model <em class="hint-inline">- required for custom layout analysis; must support images</em></span>
-        <input id="visionModel" type="text" placeholder="e.g. nvidia/nemotron-nano-12b-v2-vl:free (OpenRouter)" autocomplete="off">
+        <input id="visionModel" type="text" placeholder="e.g. qwen-vl-plus (DashScope)" list="visionModelPresets" autocomplete="off">
+        <datalist id="visionModelPresets">
+          <option value="qwen-vl-plus">Qwen VL Plus</option>
+          <option value="qwen-vl-max">Qwen VL Max</option>
+          <option value="nvidia/nemotron-nano-12b-v2-vl:free">OpenRouter Nemotron VL (free)</option>
+        </datalist>
       </label>
       <label class="full">
         <span>API Key</span>
-        <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off">
+        <input id="apiKey" type="password" placeholder="sk-... (DashScope: cle API Model Studio)" autocomplete="off">
       </label>
       <label class="full inline">
         <input id="rememberKey" type="checkbox">

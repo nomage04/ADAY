@@ -1,0 +1,49 @@
+# ADAY (V1) sur Alibaba Cloud ECS.
+#
+# Le service tourne en loopback (127.0.0.1:8000) ; la passerelle Caddy
+# partage son espace réseau, termine le TLS et réécrit les en-têtes que le
+# backend épingle. Les volumes de certificats sont EXTERNES pour réutiliser
+# le certificat Let's Encrypt déjà émis pour l'hôte (rate limit LE : ne
+# jamais recréer ces volumes).
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: deploy/alibaba/Dockerfile
+    restart: unless-stopped
+    environment:
+      PPTGEN_DATA_DIR: /data/customs
+      # Cible du proxy intégré POST /v1/* (Base URL UI = "/v1").
+      LLM_BASE: ${LLM_BASE:-https://dashscope-intl.aliyuncs.com/compatible-mode}
+    volumes:
+      - aday-v1-data:/data
+    # Publiés ici car la passerelle partage cet espace réseau.
+    ports:
+      - "80:80"
+      - "443:443"
+    mem_limit: 1g
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+  gateway:
+    image: caddy:2
+    restart: unless-stopped
+    network_mode: "service:app"
+    depends_on:
+      - app
+    environment:
+      ADAY_PUBLIC_HOST: ${ADAY_PUBLIC_HOST}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+volumes:
+  aday-v1-data:
+  caddy-data:
+    external: true
+    name: alibaba_caddy-data
+  caddy-config:
+    external: true
+    name: alibaba_caddy-config
