@@ -39,6 +39,8 @@ services:
       - app
     environment:
       ADAY_PUBLIC_HOST: ${ADAY_PUBLIC_HOST}
+      ADAY_BASIC_USER: ${ADAY_BASIC_USER}
+      ADAY_BASIC_HASH: ${ADAY_BASIC_HASH}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data

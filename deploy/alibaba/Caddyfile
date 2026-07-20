@@ -8,6 +8,15 @@
 		X-Robots-Tag "noindex"
 	}
 
+	# Accès protégé par identifiant/mot de passe (basic auth). Le chemin
+	# /v1/* est exclu : l'application y envoie son propre en-tête
+	# « Authorization: Bearer <jeton> » (incompatible avec Basic) et ce
+	# chemin est déjà gardé par le jeton de proxy côté backend.
+	@ui not path /v1/*
+	basic_auth @ui {
+		{$ADAY_BASIC_USER} {$ADAY_BASIC_HASH}
+	}
+
 	# Le backend n'accepte que Host 127.0.0.1:8000 et, pour /api/* et /v1/*,
 	# une Origin du même host. La passerelle réécrit les deux — mais l'Origin
 	# n'est réécrite QUE si le navigateur a envoyé l'origin de ce site ;
