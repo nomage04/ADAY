@@ -87,7 +87,7 @@ def _record(value: object) -> dict:
 def _only(value: dict, allowed: set[str]) -> None:
     unknown = set(value) - allowed
     if unknown:
-        raise ValueError(f"champ(s) inconnu(s) : {', '.join(sorted(unknown))}")
+        raise ValueError(f"unknown field(s): {', '.join(sorted(unknown))}")
 
 
 def _string(value: object, name: str, maximum: int, *, required: bool = False) -> str | None:
@@ -645,7 +645,7 @@ async def put_local_config(request: Request):
 @app.put("/api/{collection}/{identifier}")
 async def put_entry(collection: str, identifier: str, request: Request):
     if collection not in COLLECTIONS:
-        raise HTTPException(404, "collection inconnue")
+        raise HTTPException(404, "unknown collection")
     try:
         value = await _json_body(request)
         return await store.put(collection, identifier, value)
@@ -660,7 +660,7 @@ async def put_entry(collection: str, identifier: str, request: Request):
 @app.delete("/api/{collection}/{identifier}", status_code=204)
 async def delete_entry(collection: str, identifier: str):
     if collection not in COLLECTIONS:
-        raise HTTPException(404, "collection inconnue")
+        raise HTTPException(404, "unknown collection")
     try:
         await store.delete(collection, identifier)
     except ValueError as error:
@@ -672,7 +672,7 @@ async def delete_entry(collection: str, identifier: str):
 @app.put("/api/{document}")
 async def put_document(document: str, request: Request):
     if document not in DOCUMENTS:
-        raise HTTPException(404, "document inconnu")
+        raise HTTPException(404, "unknown document")
     try:
         value = await _json_body(request)
         return await store.put_document(document, value)

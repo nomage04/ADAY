@@ -77,7 +77,7 @@ class RepositoryStoreTests(unittest.TestCase):
             self.run_async(self.store.put("layouts", "../escape", layout("../escape")))
         invalid = layout("demo")
         invalid["script"] = "alert(1)"
-        with self.assertRaisesRegex(ValueError, "inconnu"):
+        with self.assertRaisesRegex(ValueError, "unknown"):
             self.run_async(self.store.put("layouts", "demo", invalid))
         invalid = layout("demo")
         invalid["imageDataUrl"] = "data:image/png;base64,aA=="
@@ -87,7 +87,7 @@ class RepositoryStoreTests(unittest.TestCase):
         invalid["imageDataUrl"] = 'data:image/png;base64,aA==" onerror="alert(1)'
         with self.assertRaisesRegex(ValueError, "data URL"):
             self.run_async(self.store.put("layouts", "demo", invalid))
-        with self.assertRaisesRegex(ValueError, "inconnu"):
+        with self.assertRaisesRegex(ValueError, "unknown"):
             self.run_async(self.store.put_document("settings", {"apiKey": "secret"}))
 
     def test_enforces_json_limit_and_ignores_corrupt_files(self):
