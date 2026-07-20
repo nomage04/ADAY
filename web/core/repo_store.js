@@ -102,7 +102,7 @@
   async function put(collection, entry) {
     if (!available) throw new Error("Mode lecture seule : lance `python -m backend.server` pour enregistrer.");
     const normalizedList = normalizeCollection(collection, [entry]);
-    if (normalizedList.length !== 1) throw new Error(`${collection} invalide`);
+    if (normalizedList.length !== 1) throw new Error(`invalid ${collection}`);
     const normalized = normalizedList[0];
     const saved = await request(`/api/${collection}/${encodeURIComponent(normalized.id)}`, {
       method: "PUT", body: JSON.stringify(normalized),
@@ -167,7 +167,7 @@
     const seen = new Set();
     const add = (collection, raw, source, sourceKind = "flat") => {
       const normalized = normalizeCollection(collection, [raw])[0];
-      if (!normalized) { report.ignored.push(`${source} (invalide)`); return; }
+      if (!normalized) { report.ignored.push(`${source} (invalid)`); return; }
       const key = `${collection}:${normalized.id}`;
       if (seen.has(key)) { report.ignored.push(`${source} (doublon)`); return; }
       seen.add(key);

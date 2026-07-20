@@ -37,7 +37,7 @@ function classifyLlmError(error, { vision = false } = {}) {
   const text = _errorText(error);
   const lower = text.toLowerCase();
   let code = "unknown";
-  if (/timeout|provider n'a pas r/i.test(text)) code = "timeout";
+  if (/timeout|did not respond/i.test(text)) code = "timeout";
   else if (status === 401 || status === 403 || /unauthorized|forbidden|invalid api key|api key/i.test(text)) code = "auth";
   else if (status === 429 || /rate limit|too many requests|quota/i.test(text)) code = "rate-limit";
   else if (vision && /no endpoints found.*image|support image input|image input|image_url|vision|multimodal/i.test(text)) code = "non-vision";
@@ -47,15 +47,15 @@ function classifyLlmError(error, { vision = false } = {}) {
   else if (/failed to fetch|fetch failed|networkerror|load failed|err_network|econnrefused|enotfound|cors/i.test(lower)) code = "network";
 
   const messages = {
-    auth: "Cle API invalide ou refusee par le provider.",
-    "not-found": "Base URL ou modele introuvable chez le provider.",
-    "non-vision": "Le modele configure ne semble pas supporter les images.",
-    timeout: "Timeout : le provider n'a pas repondu a temps.",
-    "rate-limit": "Quota ou rate limit atteint chez le provider.",
-    "json-mode": "Le provider refuse response_format=json_object pour ce modele.",
-    network: "Base URL injoignable ou erreur reseau.",
-    parse: "Le provider a repondu, mais pas avec un JSON exploitable.",
-    unknown: "Erreur LLM non classifiee.",
+    auth: "API key invalid or refused by the provider.",
+    "not-found": "Base URL or model not found at the provider.",
+    "non-vision": "The configured model does not seem to support images.",
+    timeout: "Timeout: the provider did not respond in time.",
+    "rate-limit": "Quota or rate limit reached at the provider.",
+    "json-mode": "The provider refuses response_format=json_object for this model.",
+    network: "Base URL unreachable or network error.",
+    parse: "The provider answered, but not with usable JSON.",
+    unknown: "Unclassified LLM error.",
   };
   return {
     code,

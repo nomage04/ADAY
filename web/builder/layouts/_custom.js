@@ -23,7 +23,7 @@ function layoutCustom(slide, spec, pres = {}) {
   if (!def) {
     // Shouldn't happen: build_deck validation catches missing customs.
     paintBg(slide, THEME.LIGHT_BG);
-    addTextbox(slide, `[custom layout ${id} introuvable]`,
+    addTextbox(slide, `[custom layout ${id} not found]`,
                0.5, 0.5, SLIDE_W - 1, 1, {
       fontSize: 18, color: THEME.CAT_RED, bold: true, align: "center",
     });

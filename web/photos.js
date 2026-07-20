@@ -18,7 +18,7 @@ function getPhotos() {
 }
 async function savePhotos(list) {
   const normalized = list.map(photo => window.PPTGen?.security?.normalizePhoto(photo));
-  if (normalized.some(photo => !photo)) throw new Error("Photo invalide");
+  if (normalized.some(photo => !photo)) throw new Error("Invalid photo");
   const wanted = new Set(normalized.map(photo => photo.id));
   for (const photo of normalized) await window.PPTGen.repoStore.put("photos", photo);
   for (const photo of getPhotos()) {

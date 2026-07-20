@@ -88,13 +88,13 @@ function visionErrorDiagnostic(error) {
   if (typeof classifyLlmError === "function") return classifyLlmError(error, { vision: true });
   const text = String(error?.message || error || "");
   if (/response_format|json_object/i.test(text)) {
-    return { code: "json-mode", message: "Le provider refuse response_format=json_object pour ce modele.", detail: text.slice(0, 500) };
+    return { code: "json-mode", message: "The provider refuses response_format=json_object for this model.", detail: text.slice(0, 500) };
   }
   if (/image input|image_url|vision|multimodal/i.test(text)) {
-    return { code: "non-vision", message: "Le modele configure ne semble pas supporter les images.", detail: text.slice(0, 500) };
+    return { code: "non-vision", message: "The configured model does not seem to support images.", detail: text.slice(0, 500) };
   }
-  if (/timeout/i.test(text)) return { code: "timeout", message: "Timeout : le provider n'a pas repondu a temps.", detail: text.slice(0, 500) };
-  return { code: "unknown", message: text || "Erreur Vision non classifiee.", detail: text.slice(0, 500) };
+  if (/timeout/i.test(text)) return { code: "timeout", message: "Timeout: the provider did not respond in time.", detail: text.slice(0, 500) };
+  return { code: "unknown", message: text || "Unclassified Vision error.", detail: text.slice(0, 500) };
 }
 
 function attachVisionDiagnostic(error) {

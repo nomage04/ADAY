@@ -517,7 +517,7 @@
       if (opts.action.title) btn.title = opts.action.title;
       btn.addEventListener("click", () => {
         btn.disabled = true;
-        btn.textContent = "… relance";
+        btn.textContent = "… retrying";
         opts.action.run();
       });
       ctls.appendChild(btn);
@@ -672,7 +672,7 @@
         btn.title = "Replay only this agent — previous results are kept";
         btn.addEventListener("click", () => {
           btn.disabled = true;
-          btn.textContent = "… relance";
+          btn.textContent = "… retrying";
           onRetry();
         });
         ctls.appendChild(btn);
@@ -1326,18 +1326,18 @@
   function briefSummaryText(brief) {
     if (!brief || typeof brief !== "object") return "";
     const rows = [
-      ["Sujet", brief.subject],
+      ["Subject", brief.subject],
       ["Audience", brief.audience],
       ["Usage", brief.usage_context],
-      ["Objectif", brief.goal],
-      ["Ton", brief.tone],
+      ["Goal", brief.goal],
+      ["Tone", brief.tone],
       ["Angle", brief.suggested_angle],
     ].filter(([, value]) => value);
     const must = Array.isArray(brief.must_cover) && brief.must_cover.length
       ? "Must cover: " + brief.must_cover.join(", ") : "";
     const avoid = Array.isArray(brief.avoid) && brief.avoid.length
       ? "Avoid: " + brief.avoid.join(", ") : "";
-    return [...rows.map(([label, value]) => label + " : " + value), must, avoid]
+    return [...rows.map(([label, value]) => label + ": " + value), must, avoid]
       .filter(Boolean).join("\n");
   }
 
@@ -2519,7 +2519,7 @@
     const plannerInput = buildDeckPlannerInput(freshInputs);
     const currentHash = hashGenerationInputs(freshInputs, plannerInput);
     if (currentHash !== draft.inputHash) {
-      log("warn", "Reprise refusee : le brief, les selections ou les photos ont change depuis l'interruption.");
+      log("warn", "Resume refused: the brief, selections, or photos changed since the interruption.");
       window.PPTGen.ui.notify("Resume unavailable: inputs changed. Start generation again.", "warn");
       return;
     }

@@ -29,7 +29,7 @@
   function validateValue(value, schema, path, errors) {
     if (!schema || typeof schema !== "object") return;
     if (schema.type && !matchesType(value, schema.type)) {
-      errors.push(`${path}: type ${actualType(value)} invalide (attendu ${[].concat(schema.type).join("|")})`);
+      errors.push(`${path}: invalid type ${actualType(value)} (expected ${[].concat(schema.type).join("|")})`);
       return;
     }
     if (typeof value === "string") {
@@ -40,7 +40,7 @@
         errors.push(`${path}: texte trop long`);
       }
       if (schema.pattern) {
-        try { if (!(new RegExp(schema.pattern)).test(value)) errors.push(`${path}: format invalide`); }
+        try { if (!(new RegExp(schema.pattern)).test(value)) errors.push(`${path}: invalid format`); }
         catch { errors.push(`${path}: invalid schema pattern`); }
       }
     }
