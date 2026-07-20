@@ -2,7 +2,9 @@
 // Works against any provider exposing /v1/chat/completions (OpenAI, Groq,
 // Azure, OpenRouter, Ollama, vLLM…).
 
-const PPTGEN_PROBE_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl2nzoAAAAASUVORK5CYII=";
+// 16x16 solid PNG: some providers (e.g. DashScope qwen-vl) reject images
+// smaller than 10px per side, so a 1x1 probe pixel is not accepted.
+const PPTGEN_PROBE_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAAABAAAAAQBPJcTWAAAAGUlEQVR4nGOsirJiIAWwkKR6VMOohiGlAQCbMQFM8gWYyAAAAABJRU5ErkJggg==";
 
 function _httpStatusFromError(error) {
   if (Number.isFinite(error?.status)) return error.status;
