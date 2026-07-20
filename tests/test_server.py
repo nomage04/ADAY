@@ -91,7 +91,7 @@ class RepositoryStoreTests(unittest.TestCase):
             self.run_async(self.store.put_document("settings", {"apiKey": "secret"}))
 
     def test_enforces_json_limit_and_ignores_corrupt_files(self):
-        with self.assertRaisesRegex(ValueError, "4 Mio"):
+        with self.assertRaisesRegex(ValueError, "4 MiB"):
             self.store._encode({"payload": "x" * MAX_JSON_BYTES})
         folder = self.root / "layouts"
         folder.mkdir()
@@ -115,7 +115,7 @@ class RepositoryStoreTests(unittest.TestCase):
     def test_enforces_collection_capacity(self):
         with mock.patch.dict(server_module.COLLECTION_CAPS, {"layouts": 1}):
             self.run_async(self.store.put("layouts", "first", layout("first")))
-            with self.assertRaisesRegex(OSError, "capacité layouts"):
+            with self.assertRaisesRegex(OSError, "layouts capacity"):
                 self.run_async(self.store.put("layouts", "second", layout("second")))
 
 
