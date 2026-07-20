@@ -97,7 +97,7 @@ def _string(value: object, name: str, maximum: int, *, required: bool = False) -
         raise ValueError(f"{name} must be a string")
     result = value.strip()
     if (required and not result) or len(value) > maximum:
-        raise ValueError(f"{name} invalide")
+        raise ValueError(f"invalid {name}")
     return value
 
 
@@ -146,16 +146,16 @@ def _data_url(value: object, maximum: int = 4 * 1024 * 1024) -> str:
         raise ValueError("Data URL image attendue")
     match = IMAGE_RE.fullmatch(value)
     if not match or len(match.group(2)) % 4:
-        raise ValueError("Data URL image invalide")
+        raise ValueError("invalid image data URL")
     try:
         decoded = base64.b64decode(match.group(2), validate=True)
     except Exception as error:
-        raise ValueError("base64 image invalide") from error
+        raise ValueError("invalid image base64") from error
     if not decoded or len(decoded) > maximum:
         raise ValueError("image vide ou trop volumineuse")
     dimensions = _image_dimensions(match.group(1), decoded)
     if not dimensions:
-        raise ValueError("signature ou format d'image invalide")
+        raise ValueError("invalid image signature or format")
     width, height = dimensions
     if width < 1 or height < 1 or width > MAX_IMAGE_SIDE or height > MAX_IMAGE_SIDE or width * height > MAX_IMAGE_PIXELS:
         raise ValueError("dimensions d'image hors limites")
@@ -170,13 +170,13 @@ def _validate_analysis(value: object, *, classification: bool) -> None:
     _only(analysis, allowed)
     for key in ("descriptionStatus", "classificationStatus"):
         if key in analysis and analysis[key] not in ANALYSIS_STATUSES:
-            raise ValueError(f"{key} invalide")
+            raise ValueError(f"invalid {key}")
     if "updatedAt" in analysis:
         _string(analysis["updatedAt"], "updatedAt", 64)
     if "errorCode" in analysis:
         code = _string(analysis["errorCode"], "errorCode", 40)
         if code and not re.fullmatch(r"[a-z0-9_-]{1,40}", code):
-            raise ValueError("errorCode invalide")
+            raise ValueError("invalid errorCode")
     if "errorMessage" in analysis:
         _string(analysis["errorMessage"], "errorMessage", 500)
 
@@ -194,7 +194,7 @@ def _validate_style(value: object) -> None:
     style = _record(value)
     _only(style, {"fontSize", "color", "fontFace", "bold", "italic", "align"})
     if "fontSize" in style and (isinstance(style["fontSize"], bool) or not isinstance(style["fontSize"], (int, float))):
-        raise ValueError("fontSize invalide")
+        raise ValueError("invalid fontSize")
     for key, maximum in (("color", 32), ("fontFace", 80)):
         if key in style:
             _string(style[key], key, maximum)
@@ -202,7 +202,7 @@ def _validate_style(value: object) -> None:
         if key in style and not isinstance(style[key], bool):
             raise ValueError(f"{key} must be a boolean")
     if "align" in style and style["align"] not in ALIGNS:
-        raise ValueError("align invalide")
+        raise ValueError("invalid align")
 
 
 def _validate_zone(value: object) -> None:
@@ -210,15 +210,15 @@ def _validate_zone(value: object) -> None:
     _only(zone, {"id", "label", "type", "x_pct", "y_pct", "w_pct", "h_pct", "align", "color", "style"})
     _string(zone.get("label"), "label", 80, required=True)
     if zone.get("type") not in ZONE_TYPES:
-        raise ValueError("type de zone invalide")
+        raise ValueError("invalid zone type")
     for key in ("x_pct", "y_pct"):
         _percent(zone.get(key), key)
     for key in ("w_pct", "h_pct"):
         _percent(zone.get(key), key, positive=True)
     if "id" in zone and not re.fullmatch(r"z[A-Za-z0-9_-]*", str(zone["id"])):
-        raise ValueError("id de zone invalide")
+        raise ValueError("invalid zone id")
     if "align" in zone and zone["align"] not in ALIGNS:
-        raise ValueError("align de zone invalide")
+        raise ValueError("invalid zone align")
     if "color" in zone:
         _string(zone["color"], "color", 32)
     if "style" in zone:
@@ -229,7 +229,7 @@ def _validate_background_shape(value: object) -> None:
     shape = _record(value)
     _only(shape, {"kind", "x_pct", "y_pct", "w_pct", "h_pct", "dataUrl", "fill", "color", "fontFace", "text", "fontSize", "bold", "italic", "align"})
     if shape.get("kind") not in {"image", "shape", "oval", "text"}:
-        raise ValueError("forme de fond invalide")
+        raise ValueError("invalid background shape")
     for key in ("x_pct", "y_pct"):
         _percent(shape.get(key), key)
     for key in ("w_pct", "h_pct"):
@@ -237,12 +237,12 @@ def _validate_background_shape(value: object) -> None:
     if shape["kind"] == "image":
         _data_url(shape.get("dataUrl"))
     elif "dataUrl" in shape:
-        raise ValueError("dataUrl interdit pour cette forme")
+        raise ValueError("dataUrl not allowed for this shape")
     for key, maximum in (("fill", 32), ("color", 32), ("fontFace", 80), ("text", 5000)):
         if key in shape:
             _string(shape[key], key, maximum)
     if "align" in shape and shape["align"] not in ALIGNS:
-        raise ValueError("align invalide")
+        raise ValueError("invalid align")
     for key in ("bold", "italic"):
         if key in shape and not isinstance(shape[key], bool):
             raise ValueError(f"{key} must be a boolean")
@@ -252,7 +252,7 @@ def validate_layout(value: object, identifier: str) -> dict:
     item = _record(value)
     _only(item, {"id", "name", "description", "category", "structural_role", "source", "createdAt", "imageDataUrl", "thumbnailDataUrl", "background", "zones", "analysis"})
     if item.get("id") != identifier or not CUSTOM_ID_RE.fullmatch(identifier):
-        raise ValueError("id de layout invalide")
+        raise ValueError("invalid layout id")
     _string(item.get("name"), "name", 200, required=True)
     _string(item.get("description"), "description", 2000)
     if item.get("category", "custom") not in CATEGORIES:
@@ -264,11 +264,11 @@ def validate_layout(value: object, identifier: str) -> dict:
     if "structural_role" in item and item["structural_role"] not in {"title", "closing"}:
         raise ValueError("invalid structural role")
     if "source" in item and item["source"] != "pptx":
-        raise ValueError("source invalide")
+        raise ValueError("invalid source")
     _string(item.get("createdAt"), "createdAt", 64)
     zones = item.get("zones")
     if not isinstance(zones, list) or len(zones) > 64:
-        raise ValueError("zones invalides")
+        raise ValueError("invalid zones")
     for zone in zones:
         _validate_zone(zone)
     for key in ("imageDataUrl", "thumbnailDataUrl"):
@@ -279,7 +279,7 @@ def validate_layout(value: object, identifier: str) -> dict:
         _only(background, {"shapes"})
         shapes = background.get("shapes")
         if not isinstance(shapes, list) or len(shapes) > 500:
-            raise ValueError("formes de fond invalides")
+            raise ValueError("invalid background shapes")
         for shape in shapes:
             _validate_background_shape(shape)
     if "analysis" in item:
@@ -305,7 +305,7 @@ def validate_photo(value: object, identifier: str) -> dict:
     item = _record(value)
     _only(item, {"id", "name", "description", "dataUrl", "addedAt"})
     if item.get("id") != identifier or not ID_RE.fullmatch(identifier):
-        raise ValueError("id de photo invalide")
+        raise ValueError("invalid photo id")
     _string(item.get("name"), "name", 300, required=True)
     _string(item.get("description", ""), "description", 5000)
     _string(item.get("addedAt", ""), "addedAt", 64)
@@ -317,18 +317,18 @@ def validate_history(value: object, identifier: str) -> dict:
     item = _record(value)
     _only(item, {"id", "savedAt", "topic", "slideCount", "plan", "display", "warnings"})
     if item.get("id") != identifier or not ID_RE.fullmatch(identifier):
-        raise ValueError("id d’historique invalide")
+        raise ValueError("invalid history id")
     _string(item.get("savedAt", ""), "savedAt", 64)
     _string(item.get("topic"), "topic", 500, required=True)
     plan = item.get("plan")
     if not isinstance(plan, list) or not plan or len(plan) > 100:
-        raise ValueError("plan invalide")
+        raise ValueError("invalid plan")
     if item.get("slideCount") != len(plan):
         raise ValueError("inconsistent slideCount")
     _string(item.get("display", ""), "display", 1024 * 1024)
     warnings = item.get("warnings", [])
     if not isinstance(warnings, list) or len(warnings) > 100 or any(not isinstance(v, str) or len(v) > 2000 for v in warnings):
-        raise ValueError("warnings invalides")
+        raise ValueError("invalid warnings")
     return item
 
 
@@ -350,9 +350,9 @@ def validate_gallery(value: object) -> dict:
     for key in ("disabledIcons", "disabledLayouts"):
         values = item.get(key, [])
         if not isinstance(values, list) or len(values) > 500:
-            raise ValueError(f"{key} invalide")
+            raise ValueError(f"invalid {key}")
         if any(not isinstance(entry, str) or not re.fullmatch(r"(?:custom:)?[a-z0-9_]{1,64}", entry) for entry in values):
-            raise ValueError(f"{key} contient un id invalide")
+            raise ValueError(f"{key} contains an invalid id")
     return item
 
 
@@ -372,15 +372,15 @@ class RepositoryStore:
 
     def _collection_path(self, collection: str, identifier: str) -> Path:
         if collection not in COLLECTIONS or not ID_RE.fullmatch(identifier):
-            raise ValueError("collection ou id invalide")
+            raise ValueError("invalid collection or id")
         path = (self.root / COLLECTIONS[collection] / f"{identifier}.json").resolve()
         if self.root not in path.parents:
-            raise ValueError("chemin interdit")
+            raise ValueError("path not allowed")
         return path
 
     def _document_path(self, name: str) -> Path:
         if name not in DOCUMENTS:
-            raise ValueError("document invalide")
+            raise ValueError("invalid document")
         return (self.root / DOCUMENTS[name]).resolve()
 
     @staticmethod
@@ -390,7 +390,7 @@ class RepositoryStore:
         try:
             return json.loads(raw.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as error:
-            raise ValueError("JSON invalide") from error
+            raise ValueError("invalid JSON") from error
 
     @staticmethod
     def _encode(value: object) -> bytes:
@@ -472,7 +472,7 @@ class RepositoryStore:
     async def put(self, collection: str, identifier: str, value: object) -> dict:
         validator = VALIDATORS.get(collection)
         if not validator:
-            raise ValueError("collection invalide")
+            raise ValueError("invalid collection")
         normalized = validator(value, identifier)
         raw = self._encode(normalized)
         path = self._collection_path(collection, identifier)
@@ -492,7 +492,7 @@ class RepositoryStore:
     async def put_document(self, name: str, value: object) -> dict:
         validator = DOCUMENT_VALIDATORS.get(name)
         if not validator:
-            raise ValueError("document invalide")
+            raise ValueError("invalid document")
         normalized = validator(value)
         raw = self._encode(normalized)
         path = self._document_path(name)
@@ -582,7 +582,7 @@ async def secure_local_requests(request: Request, call_next):
         origin = request.headers.get("origin")
         host = request.headers.get("host", "")
         if not _same_origin_host(origin, host):
-            return JSONResponse({"detail": "origine interdite"}, status_code=403)
+            return JSONResponse({"detail": "origin not allowed"}, status_code=403)
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
@@ -601,7 +601,7 @@ async def _limited_body(request: Request, maximum: int) -> bytes:
         try:
             declared = int(length)
         except ValueError as error:
-            raise ValueError("Content-Length invalide") from error
+            raise ValueError("invalid Content-Length") from error
         if declared > maximum:
             raise BodyTooLarge(f"body larger than {maximum // (1024 * 1024)} MiB")
     chunks = []
@@ -666,7 +666,7 @@ async def delete_entry(collection: str, identifier: str):
     except ValueError as error:
         raise HTTPException(400, str(error)) from error
     except OSError as error:
-        raise HTTPException(507, f"suppression impossible : {error}") from error
+        raise HTTPException(507, f"delete failed: {error}") from error
 
 
 @app.put("/api/{document}")

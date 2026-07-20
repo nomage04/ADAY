@@ -85,7 +85,7 @@ class RepositoryStoreTests(unittest.TestCase):
             self.run_async(self.store.put("layouts", "demo", invalid))
         invalid = layout("demo")
         invalid["imageDataUrl"] = 'data:image/png;base64,aA==" onerror="alert(1)'
-        with self.assertRaisesRegex(ValueError, "Data URL"):
+        with self.assertRaisesRegex(ValueError, "data URL"):
             self.run_async(self.store.put("layouts", "demo", invalid))
         with self.assertRaisesRegex(ValueError, "inconnu"):
             self.run_async(self.store.put_document("settings", {"apiKey": "secret"}))
