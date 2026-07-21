@@ -519,7 +519,7 @@
         <datalist id="baseUrlPresets">
           <option value="https://dashscope-intl.aliyuncs.com/compatible-mode/v1">Qwen - Alibaba Cloud Model Studio (intl)</option>
           <option value="https://dashscope.aliyuncs.com/compatible-mode/v1">Qwen - Alibaba Cloud Model Studio (Chine)</option>
-          <option value="/v1">Proxy local (backend/server.py + LLM_BASE)</option>
+          <option value="/v1">Local proxy (backend/server.py + LLM_BASE)</option>
           <option value="https://api.groq.com/openai/v1">Groq</option>
           <option value="https://api.openai.com/v1">OpenAI</option>
           <option value="https://openrouter.ai/api/v1">OpenRouter</option>
@@ -530,10 +530,11 @@
         <span>Model</span>
         <input id="model" type="text" value="qwen-plus" list="modelPresets" autocomplete="off">
         <datalist id="modelPresets">
-          <option value="qwen-plus">Qwen Plus - equilibre qualite/vitesse</option>
-          <option value="qwen-max">Qwen Max - qualite maximale</option>
-          <option value="qwen-turbo">Qwen Turbo - rapide et economique</option>
-          <option value="qwen-flash">Qwen Flash - tres rapide</option>
+          <option value="qwen-plus">Qwen Plus - balanced quality/speed</option>
+          <option value="qwen-max">Qwen Max - highest quality</option>
+          <option value="qwen-turbo">Qwen Turbo - fast and economical</option>
+          <option value="qwen-flash">Qwen Flash - fastest</option>
+          <option value="gpt-5.6">OpenAI GPT-5.6</option>
           <option value="gpt-4o-mini">OpenAI gpt-4o-mini</option>
           <option value="openai/gpt-oss-120b">Groq gpt-oss-120b</option>
         </datalist>

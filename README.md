@@ -80,6 +80,17 @@ ADAY is preconfigured for Qwen through the DashScope OpenAI-compatible API:
 | Vision     | `qwen-vl-plus` (alternative: `qwen-vl-max`)                 |
 | API key    | a Model Studio key (`sk-...`), created in the Alibaba Cloud console |
 
+### OpenAI — GPT-5.6
+
+ADAY was built during OpenAI Build Week with Codex and GPT-5.6, and runs on GPT-5.6 directly:
+
+| Field      | Value                          |
+| ---------- | ------------------------------ |
+| Base URL   | `https://api.openai.com/v1`    |
+| Model      | `gpt-5.6`                      |
+| Vision     | `gpt-5.6`                      |
+| API key    | an OpenAI API key (`sk-...`)   |
+
 Accounts on the Chinese mainland endpoint use `https://dashscope.aliyuncs.com/compatible-mode/v1` instead. The Settings fields offer these presets in their dropdowns. DashScope sends CORS headers, so the browser can call it directly; alternatively set the Base URL to `/v1` to route through the bundled server proxy (`LLM_BASE=https://dashscope-intl.aliyuncs.com/compatible-mode`).
 
 ## Cloud deployment (Alibaba Cloud ECS)
